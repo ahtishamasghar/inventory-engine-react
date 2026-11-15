@@ -2,7 +2,8 @@
 
 A React + Vite inventory workspace for the existing C++17 Crow Inventory Optimization Engine. Designed around clear stock visibility, fast product maintenance, and explicit connection feedback.
 
-**Website:** https://ahtishamasghar.github.io/inventory-engine-react/  
+**Website:** https://ahtishamasghar.github.io/inventory-engine-react/
+
 **Deployment runs:** https://github.com/ahtishamasghar/inventory-engine-react/actions
 
 ## Features
