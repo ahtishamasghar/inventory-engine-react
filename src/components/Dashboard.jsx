@@ -27,7 +27,7 @@ export default function Dashboard({ products, stale, onLowStock }) {
     {
       label: 'Low Stock Products',
       value: stats?.low,
-      description: 'Below their minimum stock level',
+      description: 'At or below minimum stock',
       icon: TriangleAlert,
       className: 'low',
     },

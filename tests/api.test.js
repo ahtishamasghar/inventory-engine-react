@@ -110,3 +110,22 @@ test('aborted requests do not turn into inventory failures', async () => {
   })
   await assert.rejects(api.all(controller.signal), { name: 'AbortError' })
 })
+
+test('name search encodes special characters and keeps backend result ordering', async () => {
+  let requested
+  const api = createApi('/api', async (url) => {
+    requested = url
+    return new Response(
+      JSON.stringify({ products: [product, { ...product, id: 2 }] }),
+    )
+  })
+  const results = await api.searchByName('  Cup & café?#  ')
+  assert.equal(
+    requested,
+    '/api/products/search?name=Cup%20%26%20caf%C3%A9%3F%23',
+  )
+  assert.deepEqual(
+    results.map((p) => p.id),
+    [10, 2],
+  )
+})

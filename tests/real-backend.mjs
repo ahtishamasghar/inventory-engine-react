@@ -12,7 +12,7 @@ if (
   )
 const base = process.env.REAL_API_BASE_URL.replace(/\/$/, '')
 const productId = 1900000000 + Math.floor(Math.random() * 100000000)
-const name = `Integration ${productId}`
+const name = `Integration ${productId} & café`
 const before = await (await fetch(`${base}/products`)).json()
 const browser = await chromium.launch({
   executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH,
@@ -63,10 +63,21 @@ try {
       ),
     )
   }
+  await page.getByLabel('Search mode').selectOption('name')
+  for (const query of [name, `INTEGRATION ${productId}`]) {
+    await page.getByLabel('Product name to search').fill(query)
+    await page
+      .getByRole('status')
+      .filter({ hasText: `Name search results · “${query}”` })
+      .waitFor()
+    assert.equal(await page.locator('tbody tr').count(), 1)
+    assert.ok((await page.locator('tbody').textContent()).includes(name))
+  }
+  await page.getByLabel('Search mode').selectOption('id')
   await page.getByLabel('Product ID to search').fill(String(productId))
   await page.getByRole('button', { name: 'Search by ID' }).click()
   await page
-    .getByText(`Search results · #${productId}`, { exact: true })
+    .getByText(`Search results · #${productId}`, { exact: false })
     .waitFor()
   assert.equal(await page.locator('tbody tr').count(), 1)
   const lowestResponse = page.waitForResponse((r) =>
@@ -101,7 +112,7 @@ try {
   await page.screenshot({ path: '/tmp/stockroom-mobile.png', fullPage: true })
   assert.deepEqual(errors, [])
   console.log(
-    'PASS: real Crow API create, edit, ID search, BST ID sort, merge price sort, heap lowest stock, delete, desktop/mobile layouts and browser runtime.',
+    'PASS: real Crow API create, edit, encoded name search, case-insensitive name search, ID search, BST ID sort, merge price sort, heap lowest stock, delete, desktop/mobile layouts and browser runtime.',
   )
 } finally {
   if ((await fetch(`${base}/products/${productId}`)).ok)

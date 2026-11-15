@@ -37,17 +37,19 @@ test('enforces C++ integer bounds, required text and finite nonnegative prices',
   assert.ok(validateProduct({ ...product, name: '  ' }).name)
   assert.ok(validateProduct({ ...product, category: '' }).category)
 })
-test('summaries use actual quantities and strictly below minimum stock', () => {
+test('summaries use actual quantities and the inclusive minimum stock boundary', () => {
   const rows = [
     { quantity: 3, minStock: 4, category: 'Home' },
     { quantity: 4, minStock: 4, category: 'Home' },
     { quantity: 0, minStock: 0, category: 'Office' },
   ]
-  assert.equal(isLow(rows[1]), false)
+  assert.equal(isLow(rows[1]), true)
+  assert.equal(isLow(rows[2]), true)
+  assert.equal(isLow({ quantity: 5, minStock: 4 }), false)
   assert.deepEqual(summarize(rows), {
     products: 3,
     stock: 7,
-    low: 1,
+    low: 3,
     categories: 2,
   })
   assert.deepEqual(summarize([]), {

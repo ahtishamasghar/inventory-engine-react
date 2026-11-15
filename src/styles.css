@@ -1568,3 +1568,246 @@ tbody tr:hover {
     scroll-behavior: auto !important;
   }
 }
+
+/* Project resources and discoverable, server-backed search. */
+.topbar {
+  gap: 18px;
+}
+.project-resources {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: auto;
+}
+.project-resources a,
+.project-resources button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 0;
+  background: none;
+  color: #526b4a;
+  font-size: 11px;
+  text-decoration: none;
+}
+.project-resources a:hover,
+.project-resources button:hover {
+  color: #234c40;
+  text-decoration: underline;
+}
+.search-form select {
+  min-width: 80px;
+  max-width: 110px;
+  border: 1px solid #dce3d2;
+  border-radius: 6px;
+  background: #f7f9f3;
+  color: #405b37;
+  font: inherit;
+  font-size: 11px;
+  padding: 8px;
+}
+.search-form select:focus-visible {
+  outline: 3px solid #a07730;
+  outline-offset: 3px;
+}
+.search-hint {
+  margin: -8px 24px 16px;
+  font-size: 10px;
+  line-height: 1.7;
+  color: #5e6f53;
+}
+.table-scroll-hint {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  padding: 11px 16px;
+  background: #f5f7ee;
+  border-top: 1px solid var(--line);
+  color: #5e6f53;
+  font-size: 10px;
+  line-height: 1.6;
+}
+.view-bar > span {
+  flex-wrap: wrap;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.view-bar > button {
+  flex-shrink: 0;
+  margin-left: 12px;
+}
+.project-details {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 26px;
+  padding: 25px 0 8px;
+  margin-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.project-intro {
+  max-width: 330px;
+}
+.project-intro h2 {
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 7px 0;
+}
+.contributors {
+  display: flex;
+  gap: 25px;
+  flex-wrap: wrap;
+}
+.contributor {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.contributor-avatar {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #dce4d1;
+  background: #edf1e5;
+  border-radius: 50%;
+  color: #536b44;
+  font-size: 10px;
+}
+.contributor h3 {
+  font-size: 11px;
+  font-weight: 550;
+  line-height: 1.6;
+}
+.contributor p {
+  color: #5e6f53;
+  font-size: 9px;
+  margin-top: 4px;
+  letter-spacing: 0.4px;
+}
+.documentation-dialog {
+  max-width: 650px;
+}
+.documentation-content strong {
+  color: #415b36;
+  font-weight: 600;
+}
+.documentation-content section {
+  margin-top: 24px;
+}
+.documentation-content section > p + p {
+  margin-top: 10px;
+}
+.guide-steps {
+  padding-left: 20px;
+}
+.guide-steps li {
+  padding-left: 4px;
+  margin: 12px 0;
+}
+.algorithm-list {
+  margin: 15px 0 0;
+}
+.algorithm-list > div {
+  border-top: 1px solid var(--line);
+  padding: 13px 0;
+}
+.algorithm-list dt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.algorithm-list dt > span {
+  font-size: 10px;
+  background: #edf2e4;
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: #4d653e;
+}
+.algorithm-list dd {
+  margin: 5px 0 0;
+}
+.resource-links {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+  margin-top: 13px;
+}
+.resource-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid #dbe3d0;
+  padding: 8px 10px;
+  border-radius: 6px;
+  text-decoration: none;
+  color: #4d653e;
+  font-size: 11px;
+}
+.resource-links a:hover {
+  background: #edf2e4;
+}
+@media (max-width: 1200px) {
+  .project-details {
+    align-items: flex-start;
+  }
+  .contributors {
+    gap: 17px;
+    flex-direction: column;
+  }
+}
+@media (max-width: 750px) {
+  .topbar {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 77px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    gap: 10px;
+  }
+  .topbar .breadcrumb {
+    display: none;
+  }
+  .project-resources {
+    margin-left: 0;
+    gap: 13px;
+  }
+}
+@media (max-width: 600px) {
+  .topbar {
+    min-height: 55px;
+  }
+  .project-resources a,
+  .project-resources button {
+    font-size: 10px;
+  }
+  .search-form {
+    display: grid;
+    grid-template-columns: 85px minmax(0, 1fr);
+  }
+  .search-form select {
+    max-width: none;
+  }
+  .search-form .search-button {
+    grid-column: 1 / -1;
+  }
+  .search-hint {
+    margin-left: 16px;
+    margin-right: 16px;
+  }
+  .project-details {
+    flex-direction: column;
+    gap: 18px;
+  }
+  .contributors {
+    flex-direction: row;
+    gap: 17px 24px;
+  }
+  .contributor h3 {
+    font-size: 12px;
+  }
+  .contributor p {
+    font-size: 10px;
+  }
+}

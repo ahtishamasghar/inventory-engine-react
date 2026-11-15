@@ -61,6 +61,14 @@ async function fixture(page) {
       })
     if (path.endsWith('/lowest-stock'))
       return route.fulfill({ json: products[1] })
+    if (path.endsWith('/search')) {
+      const name = new URL(req.url()).searchParams.get('name').toLowerCase()
+      return route.fulfill({
+        json: {
+          products: products.filter((p) => p.name.toLowerCase().includes(name)),
+        },
+      })
+    }
     if (/\/\d+$/.test(path)) {
       const product = products.find(
         (p) => p.id === Number(path.split('/').pop()),
@@ -83,7 +91,7 @@ test('dashboard, DSA operations, search and full-list totals', async ({
   await page.goto('./')
   await expect(page.getByTestId('total-products')).toHaveText('3')
   await expect(page.getByTestId('total-stock')).toHaveText('36')
-  await expect(page.getByTestId('low-stock')).toHaveText('1')
+  await expect(page.getByTestId('low-stock')).toHaveText('2')
   await page.getByRole('button', { name: 'Sort by ID', exact: true }).click()
   await expect(page.locator('tbody tr').first()).toContainText('Ceramic cup')
   await page.getByRole('button', { name: 'Sort by Price', exact: true }).click()
@@ -146,7 +154,7 @@ test('create, validate, cancel, edit and confirm deletion', async ({
       .fill(value)
   await page.getByRole('button', { name: 'Save Product' }).click()
   await expect(page.getByTestId('total-products')).toHaveText('4')
-  await expect(page.getByTestId('low-stock')).toHaveText('2')
+  await expect(page.getByTestId('low-stock')).toHaveText('3')
   await page.getByRole('button', { name: 'Edit Product: Test basket' }).click()
   await expect(page.locator('#field-id')).toBeDisabled()
   await page.getByLabel('Quantity', { exact: true }).fill('12')
@@ -243,4 +251,134 @@ test('dashboard and product editor pass accessibility checks', async ({
       .analyze()
     expect(results.violations).toEqual([])
   }
+})
+
+test('live name and ID search reset cleanly and preserve full inventory totals', async ({
+  page,
+}) => {
+  const calls = await fixture(page)
+  await page.goto('./')
+  await expect(page.getByTestId('total-products')).toHaveText('3')
+  await page.getByLabel('Search mode').selectOption('name')
+  await page.getByLabel('Product name to search').fill('CERAM')
+  await expect(page.locator('tbody tr')).toHaveCount(1)
+  await expect(page.locator('tbody')).toContainText('Ceramic cup')
+  await expect(
+    page.getByRole('status').filter({ hasText: 'Name search results' }),
+  ).toContainText('CERAM')
+  await expect(page.getByTestId('total-products')).toHaveText('3')
+  await expect(page.getByTestId('low-stock')).toHaveText('2')
+  expect(calls).toContain('GET /api/products/search')
+  await page.getByLabel('Product name to search').fill('missing product')
+  await expect(
+    page.getByRole('heading', { name: 'No matching products' }),
+  ).toBeVisible()
+  await page.getByLabel('Product name to search').fill('')
+  await expect(page.locator('tbody tr')).toHaveCount(3)
+  await page.getByLabel('Search mode').selectOption('id')
+  await page.getByLabel('Product ID to search').fill('8')
+  await expect(page.locator('tbody tr')).toHaveCount(1)
+  await expect(page.locator('tbody')).toContainText('Desk tray')
+  await expect(page.locator('tbody')).toContainText('Low stock')
+  await page.getByLabel('Product ID to search').fill('1.5')
+  await expect(page.getByRole('alert')).toContainText('Enter a product ID')
+  expect(calls).not.toContain('GET /api/products/1.5')
+  await page
+    .getByRole('button', { name: 'Show All Products', exact: true })
+    .click()
+  await expect(page.locator('tbody tr')).toHaveCount(3)
+  await expect(page.getByLabel('Product ID to search')).toHaveValue('')
+})
+
+test('a superseded name search cannot overwrite a newer search or reset', async ({
+  page,
+}) => {
+  await fixture(page)
+  let release
+  const gate = new Promise((resolve) => {
+    release = resolve
+  })
+  await page.route('**/api/products/search?name=old', async (route) => {
+    await gate
+    await route.fulfill({ json: { products: [initial[0]] } }).catch(() => {})
+  })
+  await page.goto('./')
+  await expect(page.getByTestId('total-products')).toHaveText('3')
+  await page.getByLabel('Search mode').selectOption('name')
+  const oldRequest = page.waitForRequest('**/api/products/search?name=old')
+  await page.getByLabel('Product name to search').fill('old')
+  await oldRequest
+  await page.getByLabel('Product name to search').fill('cup')
+  await expect(page.locator('tbody tr')).toHaveCount(1)
+  await expect(page.locator('tbody')).toContainText('Ceramic cup')
+  release()
+  await expect(
+    page.getByRole('status').filter({ hasText: 'Name search results' }),
+  ).toContainText('cup')
+  await page.getByLabel('Product name to search').fill('notebook')
+  await page
+    .getByRole('button', { name: 'Show All Products', exact: true })
+    .click()
+  await expect(page.locator('tbody tr')).toHaveCount(3)
+  // Beyond the debounce interval, the reset must still be the active view.
+  await page.waitForTimeout(450)
+  await expect(
+    page.getByRole('status').filter({ hasText: 'All products' }),
+  ).toContainText('3 results')
+})
+
+test('project credits, source links, documentation and mobile table guidance', async ({
+  page,
+}, testInfo) => {
+  await fixture(page)
+  await page.goto('./')
+  await expect(page.getByTestId('total-products')).toHaveText('3')
+  for (const text of [
+    'Ahtisham Asghar',
+    'Abubakar Siddique',
+    'BSCY51F25S075',
+    'BSCY51F25S058',
+  ])
+    await expect(page.getByText(text, { exact: true })).toBeVisible()
+  await expect(
+    page.getByRole('link', {
+      name: 'Backend source code (opens in a new tab)',
+    }),
+  ).toHaveAttribute(
+    'href',
+    'https://github.com/ahtishamasghar/inventory-optimization-engine',
+  )
+  if (testInfo.project.name === 'mobile')
+    await expect(
+      page.getByText(
+        'Scroll horizontally to see all columns and product actions.',
+      ),
+    ).toBeVisible()
+  await page.getByRole('button', { name: 'Documentation', exact: true }).click()
+  const dialog = page.getByRole('dialog', { name: 'Workspace documentation' })
+  await expect(
+    dialog.getByRole('heading', { name: 'Inside the engine' }),
+  ).toBeVisible()
+  for (const text of [
+    'Hash Table',
+    'Binary Search Tree',
+    'Merge Sort',
+    'Min Heap',
+  ])
+    await expect(dialog.getByText(text, { exact: true })).toBeVisible()
+  await expect(
+    dialog.getByRole('link', { name: /React frontend/ }),
+  ).toHaveAttribute(
+    'href',
+    'https://github.com/ahtishamasghar/inventory-engine-react',
+  )
+  const results = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+    .analyze()
+  expect(results.violations).toEqual([])
+  await page.keyboard.press('Escape')
+  await expect(dialog).toHaveCount(0)
+  await expect(
+    page.getByRole('button', { name: 'Documentation', exact: true }),
+  ).toBeFocused()
 })

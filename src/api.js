@@ -123,6 +123,8 @@ export function createApi(base, fetcher = globalThis.fetch) {
     sorted: (kind, signal) => list(`/sorted-by-${kind}`, signal),
     search: async (id, signal) =>
       assertProduct(await request(`/products/${id}`, { signal })),
+    searchByName: (name, signal) =>
+      list(`/search?name=${encodeURIComponent(name.trim())}`, signal),
     lowest: async (signal) =>
       assertProduct(await request('/products/lowest-stock', { signal })),
     save: (product, editing) =>

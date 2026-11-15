@@ -1,5 +1,5 @@
 export const MAX_INTEGER = 2147483647
-export const isLow = (product) => product.quantity < product.minStock
+export const isLow = (product) => product.quantity <= product.minStock
 export const number = (value) =>
   new Intl.NumberFormat('en', { maximumFractionDigits: 2 }).format(value)
 export const price = (value) =>

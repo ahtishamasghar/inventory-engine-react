@@ -4,9 +4,11 @@ import {
   ArrowUpDown,
   ArrowUpRight,
   Box,
+  BookOpen,
   ChartNoAxesCombined,
   Check,
   CircleHelp,
+  CodeXml,
   LayoutDashboard,
   LoaderCircle,
   Package,
@@ -24,6 +26,8 @@ import Dashboard from './components/Dashboard.jsx'
 import ProductTable from './components/ProductTable.jsx'
 import ProductForm from './components/ProductForm.jsx'
 import Dialog from './components/Dialog.jsx'
+import Documentation from './components/Documentation.jsx'
+import ProjectDetails from './components/ProjectDetails.jsx'
 
 const base = resolveBase(import.meta.env.VITE_API_BASE_URL, import.meta.env.DEV)
 const api = createApi(base)
@@ -33,6 +37,7 @@ const viewLabels = {
   price: 'Sorted by price',
   lowest: 'Lowest stock',
   search: 'Search results',
+  name: 'Name search results',
   low: 'Low stock products',
 }
 
@@ -43,6 +48,7 @@ export default function App() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [search, setSearch] = useState('')
+  const [searchMode, setSearchMode] = useState('id')
   const [activeSearch, setActiveSearch] = useState('')
   const [searchError, setSearchError] = useState('')
   const [updated, setUpdated] = useState(null)
@@ -52,9 +58,12 @@ export default function App() {
   const [deleteError, setDeleteError] = useState('')
   const [notice, setNotice] = useState('')
   const [help, setHelp] = useState(false)
+  const [documentation, setDocumentation] = useState(false)
   const requestRef = useRef(null)
+  const searchTimer = useRef(null)
 
   const load = useCallback(async (nextView = 'all', id = '') => {
+    clearTimeout(searchTimer.current)
     requestRef.current?.abort()
     const controller = new AbortController()
     requestRef.current = controller
@@ -67,6 +76,8 @@ export default function App() {
       if (nextView === 'id' || nextView === 'price')
         result = await api.sorted(nextView, controller.signal)
       if (nextView === 'low') result = products.filter(isLow)
+      if (nextView === 'name')
+        result = await api.searchByName(id, controller.signal)
       if (nextView === 'lowest' || nextView === 'search') {
         try {
           result = [
@@ -83,7 +94,7 @@ export default function App() {
       setAll(products)
       setRows(result)
       setView(nextView)
-      if (nextView === 'search') setActiveSearch(id)
+      if (nextView === 'search' || nextView === 'name') setActiveSearch(id)
       setUpdated(new Date())
     } catch (err) {
       if (!controller.signal.aborted) setError(err.message)
@@ -94,7 +105,10 @@ export default function App() {
 
   useEffect(() => {
     load()
-    return () => requestRef.current?.abort()
+    return () => {
+      requestRef.current?.abort()
+      clearTimeout(searchTimer.current)
+    }
   }, [load])
   useEffect(() => {
     if (!notice) return
@@ -127,22 +141,41 @@ export default function App() {
       setDeleteBusy(false)
     }
   }
-  function submitSearch(e) {
-    e.preventDefault()
+  function runSearch(value, mode) {
+    if (!value.trim()) return load('all')
     if (
-      !search.trim() ||
-      !/^\d+$/.test(search.trim()) ||
-      Number(search) > MAX_INTEGER
+      mode === 'id' &&
+      (!/^\d+$/.test(value.trim()) || Number(value) > MAX_INTEGER)
     ) {
       setSearchError(
         `Enter a product ID from 0 to ${MAX_INTEGER.toLocaleString('en')}.`,
       )
+      setLoading(false)
       return
     }
-    load('search', Number(search))
+    load(
+      mode === 'name' ? 'name' : 'search',
+      mode === 'name' ? value.trim() : Number(value),
+    )
+  }
+  function queueSearch(value, mode = searchMode) {
+    setSearch(value)
+    setSearchMode(mode)
+    setSearchError('')
+    clearTimeout(searchTimer.current)
+    requestRef.current?.abort()
+    setLoading(true)
+    // Cancel superseded reads immediately; wait briefly before issuing the next query.
+    searchTimer.current = setTimeout(() => runSearch(value, mode), 350)
+  }
+  function submitSearch(e) {
+    e.preventDefault()
+    clearTimeout(searchTimer.current)
+    runSearch(search, searchMode)
   }
   function showAll() {
     setSearch('')
+    setSearchMode('id')
     load('all')
   }
 
@@ -211,7 +244,7 @@ export default function App() {
           </p>
           <span className="note-rule" />
         </div>
-        <button className="sidebar-help" onClick={() => setHelp(true)}>
+        <button className="sidebar-help" onClick={() => setDocumentation(true)}>
           <CircleHelp size={18} />
           Workspace guide
           <ArrowUpRight size={15} />
@@ -228,6 +261,24 @@ export default function App() {
           <div className="breadcrumb">
             Workspace <span>/</span> <strong>Overview</strong>
           </div>
+          <nav className="project-resources" aria-label="Project resources">
+            <a
+              href="https://github.com/ahtishamasghar/inventory-optimization-engine"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Backend source code (opens in a new tab)"
+            >
+              <CodeXml size={15} />
+              <span>Source code</span>
+            </a>
+            <button
+              onClick={() => setDocumentation(true)}
+              aria-haspopup="dialog"
+            >
+              <BookOpen size={15} />
+              <span>Documentation</span>
+            </button>
+          </nav>
           <div
             className={`connection-pill ${error || !base ? 'offline' : loading ? 'connecting' : 'online'}`}
           >
@@ -238,7 +289,9 @@ export default function App() {
                 ? 'API not configured'
                 : error
                   ? 'Connection needs attention'
-                  : 'API connected'}
+                  : all === null
+                    ? 'Waiting for inventory'
+                    : 'API connected'}
           </div>
         </header>
         <main id="main">
@@ -313,21 +366,46 @@ export default function App() {
               </button>
             </div>
             <div className="inventory-toolbar">
-              <form className="search-form" onSubmit={submitSearch}>
+              <form
+                className="search-form"
+                role="search"
+                onSubmit={submitSearch}
+              >
+                <select
+                  aria-label="Search mode"
+                  value={searchMode}
+                  onChange={(e) => queueSearch(search, e.target.value)}
+                >
+                  <option value="id">By ID</option>
+                  <option value="name">By name</option>
+                </select>
                 <div className="search-input">
                   <Search size={17} />
                   <input
-                    aria-label="Product ID to search"
+                    aria-label={
+                      searchMode === 'id'
+                        ? 'Product ID to search'
+                        : 'Product name to search'
+                    }
                     aria-invalid={!!searchError}
-                    aria-describedby={searchError ? 'search-error' : undefined}
-                    inputMode="numeric"
-                    placeholder="Find a product by ID…"
+                    aria-describedby={
+                      searchError ? 'search-error search-hint' : 'search-hint'
+                    }
+                    inputMode={searchMode === 'id' ? 'numeric' : 'text'}
+                    placeholder={
+                      searchMode === 'id'
+                        ? 'Find a product by ID…'
+                        : 'Search all or part of a name…'
+                    }
                     value={search}
-                    onChange={(e) => setSearch(e.target.value)}
+                    onChange={(e) => queueSearch(e.target.value)}
                   />
                 </div>
-                <button className="button search-button" disabled={loading}>
-                  Search by ID
+                <button
+                  className="button search-button"
+                  disabled={!search.trim()}
+                >
+                  Search by {searchMode === 'id' ? 'ID' : 'Name'}
                 </button>
               </form>
               <div className="sort-controls">
@@ -360,22 +438,26 @@ export default function App() {
                 </button>
               </div>
             </div>
+            <p id="search-hint" className="search-hint">
+              Results update as you type. Name search matches any part of a
+              name.
+            </p>
             {searchError && (
               <p id="search-error" className="search-error" role="alert">
                 {searchError}
               </p>
             )}
             <div className="view-bar">
-              <span>
+              <span role="status" aria-live="polite" aria-atomic="true">
                 <span className="view-dot" />
                 {viewLabels[view]}
                 {view === 'search' ? ` · #${activeSearch}` : ''}
+                {view === 'name' ? ` · “${activeSearch}”` : ''}
+                {all !== null && !loading
+                  ? ` · ${number(rows.length)} ${rows.length === 1 ? 'result' : 'results'}`
+                  : ''}
               </span>
-              <button
-                className="text-button"
-                onClick={showAll}
-                disabled={loading}
-              >
+              <button className="text-button" onClick={showAll}>
                 Show All Products{view !== 'all' && <X size={13} />}
               </button>
             </div>
@@ -423,7 +505,7 @@ export default function App() {
                 <strong>{all?.length ? `${healthPercent}%` : '—'}</strong>
                 <span>
                   {all?.length
-                    ? 'at or above minimum stock'
+                    ? 'above minimum stock'
                     : all
                       ? 'Add products to see stock health'
                       : 'Connect to see stock health'}
@@ -434,7 +516,7 @@ export default function App() {
                 role="img"
                 aria-label={
                   all?.length
-                    ? `${healthyCount} products at or above minimum stock, ${lowCount} below minimum stock`
+                    ? `${healthyCount} products above minimum stock, ${lowCount} at or below minimum stock`
                     : 'No stock data available'
                 }
               >
@@ -443,7 +525,7 @@ export default function App() {
               <div className="health-legend">
                 <span>
                   <i />
-                  {all ? number(healthyCount) : '—'} within threshold
+                  {all ? number(healthyCount) : '—'} above minimum
                 </span>
                 <span>
                   <i />
@@ -477,11 +559,12 @@ export default function App() {
               </div>
             </article>
           </section>
+          <ProjectDetails onDocumentation={() => setDocumentation(true)} />
           <footer className="page-footer">
             <span>
               STOCKROOM <i /> Built for better inventory decisions.
             </span>
-            <span>Inventory Optimization Engine</span>
+            <span>DSA Finals Project · Group 12</span>
           </footer>
         </main>
       </div>
@@ -575,10 +658,10 @@ export default function App() {
             </p>
             <h3>Reading your stock</h3>
             <p>
-              Low stock means quantity is strictly below minimum stock.
-              Dashboard totals always reflect the full inventory, even when
-              viewing search or sorted results. Prices use your inventory’s
-              currency; the API does not specify one.
+              Low stock means quantity is at or below minimum stock. Dashboard
+              totals always reflect the full inventory, even when viewing search
+              or sorted results. Prices use your inventory’s currency; the API
+              does not specify one.
             </p>
           </div>
           <div className="dialog-footer">
@@ -588,6 +671,9 @@ export default function App() {
             </button>
           </div>
         </Dialog>
+      )}
+      {documentation && (
+        <Documentation onClose={() => setDocumentation(false)} />
       )}
     </div>
   )

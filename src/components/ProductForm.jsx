@@ -56,7 +56,8 @@ export default function ProductForm({ product, onClose, onSave }) {
       <p className="dialog-description">
         {editing
           ? 'Keep your product details and stock levels up to date.'
-          : 'Add the details below to bring a product into your inventory.'}
+          : 'Add the details below to bring a product into your inventory.'}{' '}
+        All fields are required. Product IDs must be unique.
       </p>
       <form onSubmit={submit} noValidate>
         <div className="form-grid">
@@ -72,6 +73,7 @@ export default function ProductForm({ product, onClose, onSave }) {
               <input
                 id={`field-${key}`}
                 type={type}
+                required
                 step={
                   key === 'price' ? 'any' : type === 'number' ? '1' : undefined
                 }
@@ -105,7 +107,7 @@ export default function ProductForm({ product, onClose, onSave }) {
               )}
               {key === 'minStock' && (
                 <small id="minStock-hint">
-                  Flag stock below this quantity.
+                  Flag stock at or below this quantity.
                 </small>
               )}
             </div>

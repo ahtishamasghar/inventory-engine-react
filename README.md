@@ -9,10 +9,11 @@ A React + Vite inventory workspace for the existing C++17 Crow Inventory Optimiz
 ## Features
 
 - Add, edit, and delete products, with validation and a destructive-action confirmation.
-- Show all products, search by exact ID, sort by ID, sort by price, and find lowest stock through the real backend endpoints.
+- Show all products, search by exact ID or partial name, sort by ID, sort by price, and find lowest stock through the real backend endpoints.
 - Dashboard totals for products, stock units, low-stock products, and categories, plus a stock-health visualization.
 - Low-stock watch view, refresh, loading and empty states, server-error messages, and last-successful-snapshot labeling when a refresh fails.
 - Responsive layout, keyboard-operable native dialogs, focus restoration, screen-reader labels, reduced-motion support, and self-hosted SVG assets.
+- In-app documentation, links to both source repositories, Group 12 contributor credits, and a scroll hint when the table overflows.
 - No runtime fixtures, simulated inventory, offline writes, client-side replacements for backend sorting/search algorithms, or fabricated statistics.
 
 ## Requirements and local development
@@ -38,19 +39,20 @@ The base URL **includes `/api`** and has no trailing endpoint such as `/products
 
 Validated against `ahtishamasghar/inventory-optimization-engine`, commit `0e00949203b7df43f0b7fa14490ac8cff245cafd`, specifically `backend/main.cpp`, `inventory_engine.hpp`, and `models/product.hpp`. The current reference checkout does not contain the requested `frontend_vanila` directory.
 
-| Action            | Method and path                     | Response / implementation                                            |
-| ----------------- | ----------------------------------- | -------------------------------------------------------------------- |
-| Show All Products | `GET /api/products`                 | `{ "products": [...] }`, hash table inventory                        |
-| Search by ID      | `GET /api/products/{id}`            | Product object; hash table lookup; 404 if absent                     |
-| Sort by ID        | `GET /api/products/sorted-by-id`    | Product list; BST in-order traversal                                 |
-| Sort by Price     | `GET /api/products/sorted-by-price` | Product list; merge sort                                             |
-| Lowest Stock      | `GET /api/products/lowest-stock`    | Product object; min heap; 404 when empty                             |
-| Add Product       | `POST /api/products`                | All six fields; 201 plain text on success                            |
-| Edit Product      | `PUT /api/products/{id}`            | Product fields; 200 plain text on success; ID is immutable in the UI |
-| Delete Product    | `DELETE /api/products/{id}`         | 200 plain text on success                                            |
-| Backend health    | `GET /api/health`                   | `{ "status": "ok", "service": "Inventory Optimization Engine" }`     |
+| Action            | Method and path                               | Response / implementation                                            |
+| ----------------- | --------------------------------------------- | -------------------------------------------------------------------- |
+| Show All Products | `GET /api/products`                           | `{ "products": [...] }`, hash table inventory                        |
+| Search by Name    | `GET /api/products/search?name={encodedName}` | Product list; backend case-insensitive substring search              |
+| Search by ID      | `GET /api/products/{id}`                      | Product object; hash table lookup; 404 if absent                     |
+| Sort by ID        | `GET /api/products/sorted-by-id`              | Product list; BST in-order traversal                                 |
+| Sort by Price     | `GET /api/products/sorted-by-price`           | Product list; merge sort                                             |
+| Lowest Stock      | `GET /api/products/lowest-stock`              | Product object; min heap; 404 when empty                             |
+| Add Product       | `POST /api/products`                          | All six fields; 201 plain text on success                            |
+| Edit Product      | `PUT /api/products/{id}`                      | Product fields; 200 plain text on success; ID is immutable in the UI |
+| Delete Product    | `DELETE /api/products/{id}`                   | 200 plain text on success                                            |
+| Backend health    | `GET /api/health`                             | `{ "status": "ok", "service": "Inventory Optimization Engine" }`     |
 
-The API also exposes name search, which is not required by this frontend. A product uses:
+Name search calls the backend’s case-insensitive substring search. Both ID and name search update after a 350 ms pause in typing; submit explicitly to search immediately. Superseded requests are cancelled. Clearing the input or choosing Show All Products restores the complete list. A product uses:
 
 ```json
 {
@@ -65,7 +67,7 @@ The API also exposes name search, which is not required by this frontend. A prod
 
 ID, quantity, and minimum stock must be integers between 0 and 2,147,483,647. Price must be finite and nonnegative. The form requires nonblank name and category. Errors from Crow's plain-text responses are surfaced directly; failed writes never report success. Requests time out after 15 seconds, and superseded read requests are cancelled.
 
-Low stock means **`quantity < minStock`**. A quantity equal to its minimum is within threshold. Zero quantity with zero minimum is labeled “No stock” but is not below minimum. Dashboard totals are calculated from the complete `/products` response, independently of the active view. Read operations can span separate API requests; concurrent external writes may change inventory between those responses. Failed refreshes retain and explicitly label the last successful snapshot.
+Low stock means **`quantity <= minStock`**, matching the previous website. Equality and zero quantity with zero minimum both need attention. Stock health counts products strictly above their minimum. Dashboard totals are calculated from the complete `/products` response, independently of the active view. Read operations can span separate API requests; concurrent external writes may change inventory between those responses. Failed refreshes retain and explicitly label the last successful snapshot.
 
 ## Production API configuration
 
@@ -128,3 +130,12 @@ During implementation, the unchanged reference `main.cpp` was compiled with C++1
 - `tests/`: unit, browser, accessibility, and opt-in live integration checks.
 
 Runtime dependencies: React, React DOM, Lucide React. Development dependencies: Vite, its React plugin, Playwright, axe-core's Playwright integration, and Prettier. No external database or service is required to build the static frontend.
+
+## Project credits
+
+DSA Finals Project · Group 12
+
+- Ahtisham Asghar — BSCY51F25S075
+- Abubakar Siddique — BSCY51F25S058
+
+Credits and the inclusive low-stock rule come from the supplied previous website. Stockroom retains its independent React interface and styling. The supplied HTML references a separate script and stylesheet that were not attached; name-search behavior is verified against the C++ backend source.
