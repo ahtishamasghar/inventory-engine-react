@@ -7,13 +7,11 @@ import {
   BookOpen,
   ChartNoAxesCombined,
   Check,
-  CircleHelp,
   CodeXml,
   LayoutDashboard,
   LoaderCircle,
   Package,
   Plus,
-  RefreshCw,
   Search,
   Settings2,
   TriangleAlert,
@@ -127,6 +125,16 @@ export default function App() {
     ? Math.round((healthyCount / all.length) * 100)
     : 0
 
+  const connectionLabel = loading
+    ? 'Connecting'
+    : !base
+      ? 'API not configured'
+      : error
+        ? 'Connection needs attention'
+        : all === null
+          ? 'Waiting for inventory'
+          : 'API connected'
+
   async function save(product, editing) {
     await api.save(product, editing)
     setEditor(null)
@@ -199,20 +207,26 @@ export default function App() {
         Skip to inventory
       </a>
       <aside className="sidebar">
-        <a className="brand" href="#main" aria-label="Stockroom home">
-          <span className="brand-symbol">
-            <Box size={25} strokeWidth={1.7} />
-          </span>
-          <span>
-            stockroom<span className="brand-period">.</span>
-            <small>INVENTORY ENGINE</small>
-          </span>
-        </a>
-        <div className="workspace-badge">
-          <span>IE</span>
-          <div>
-            Inventory workspace<small>Your operations, organized</small>
-          </div>
+        <div className="sidebar-brand">
+          <a className="brand" href="#main" aria-label="Stockroom home">
+            <span className="brand-symbol">
+              <Box size={25} strokeWidth={1.7} />
+            </span>
+            <span>
+              stockroom<span className="brand-period">.</span>
+              <small>INVENTORY ENGINE</small>
+            </span>
+          </a>
+          <button
+            className={`connection-pill ${error || !base ? 'offline' : loading ? 'connecting' : 'online'}`}
+            onClick={() => setHelp(true)}
+            aria-label={`Connection details: ${connectionLabel}`}
+            title={connectionLabel}
+            aria-haspopup="dialog"
+          >
+            <i aria-hidden="true" />
+            <span>{connectionLabel}</span>
+          </button>
         </div>
         <span className="nav-label">WORKSPACE</span>
         <nav aria-label="Main navigation">
@@ -244,86 +258,38 @@ export default function App() {
             <ArrowUpRight size={15} />
           </button>
         </nav>
-        <div className="sidebar-note">
-          <span className="note-icon">
-            <ChartNoAxesCombined size={24} />
-          </span>
-          <h3>
-            Less guesswork.
-            <br />
-            Better stock flow.
-          </h3>
-          <p>
-            A little visibility goes a long way. Keep your inventory in balance.
-          </p>
-          <span className="note-rule" />
-        </div>
-        <button className="sidebar-help" onClick={() => setDocumentation(true)}>
-          <CircleHelp size={18} />
-          Workspace guide
-          <ArrowUpRight size={15} />
-        </button>
-        <div className="sidebar-footer">
-          <span className="user-avatar">IO</span>
-          <div>
-            Inventory operations<small>Dynamic optimization engine</small>
-          </div>
-        </div>
+        <nav className="project-resources" aria-label="Project resources">
+          <span className="nav-label">PROJECT RESOURCES</span>
+          <a
+            href="https://github.com/ahtishamasghar/inventory-optimization-engine"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Backend source code (opens in a new tab)"
+          >
+            <CodeXml size={18} />
+            <span>Source code</span>
+            <ArrowUpRight size={15} className="resource-arrow" />
+          </a>
+          <button
+            onClick={() => setDocumentation(true)}
+            aria-label="Documentation"
+            aria-haspopup="dialog"
+          >
+            <BookOpen size={18} />
+            <span>Documentation</span>
+            <ArrowUpRight size={15} className="resource-arrow" />
+          </button>
+        </nav>
       </aside>
       <div className="main-shell">
-        <header className="topbar">
-          <div className="breadcrumb">
-            Workspace <span>/</span> <strong>Overview</strong>
-          </div>
-          <nav className="project-resources" aria-label="Project resources">
-            <a
-              href="https://github.com/ahtishamasghar/inventory-optimization-engine"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Backend source code (opens in a new tab)"
-            >
-              <CodeXml size={15} />
-              <span>Source code</span>
-            </a>
-            <button
-              onClick={() => setDocumentation(true)}
-              aria-haspopup="dialog"
-            >
-              <BookOpen size={15} />
-              <span>Documentation</span>
-            </button>
-          </nav>
-          <div
-            className={`connection-pill ${error || !base ? 'offline' : loading ? 'connecting' : 'online'}`}
-          >
-            <i />
-            {loading
-              ? 'Connecting'
-              : !base
-                ? 'API not configured'
-                : error
-                  ? 'Connection needs attention'
-                  : all === null
-                    ? 'Waiting for inventory'
-                    : 'API connected'}
-          </div>
+        <header className="project-header">
+          <ProjectDetails onDocumentation={() => setDocumentation(true)} />
         </header>
         <main id="main">
           <div className="page-heading">
-            <div>
-              <div className="eyebrow">A CLEAR VIEW OF WHAT’S IN STORE</div>
-              <h1>
-                Inventory overview<span>.</span>
-              </h1>
-              <p>Everything in its place. Every product accounted for.</p>
-            </div>
-            <button
-              className="button primary add-product"
-              onClick={() => setEditor({})}
-            >
-              <Plus size={18} />
-              Add Product
-            </button>
+            <h1>
+              Inventory overview<span>.</span>
+            </h1>
           </div>
           {error && (
             <div className="connection-alert" role="alert">
@@ -369,12 +335,11 @@ export default function App() {
                 </span>
               </div>
               <button
-                className="text-button"
-                onClick={refreshView}
-                disabled={loading}
+                className="button primary add-product"
+                onClick={() => setEditor({})}
               >
-                <RefreshCw size={15} className={loading ? 'spin' : ''} />
-                {loading ? 'Refreshing…' : 'Refresh'}
+                <Plus size={17} />
+                Add Product
               </button>
             </div>
             <div className="inventory-toolbar">
@@ -505,7 +470,7 @@ export default function App() {
                   ? 'Last successful snapshot'
                   : updated
                     ? `Updated ${updated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
-                    : 'Your API is the source of truth'}
+                    : ''}
               </span>
             </div>
           </section>
@@ -578,13 +543,6 @@ export default function App() {
               </div>
             </article>
           </section>
-          <ProjectDetails onDocumentation={() => setDocumentation(true)} />
-          <footer className="page-footer">
-            <span>
-              STOCKROOM <i /> Built for better inventory decisions.
-            </span>
-            <span>DSA Finals Project · Group 12</span>
-          </footer>
         </main>
       </div>
       {notice && (

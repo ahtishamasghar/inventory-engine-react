@@ -11,7 +11,7 @@ A React + Vite inventory workspace for the existing C++17 Crow Inventory Optimiz
 - Add, edit, and delete products, with validation and a destructive-action confirmation.
 - Show all products, search by exact ID or partial name, sort by ID, sort by price, and find lowest stock through the real backend endpoints.
 - Dashboard totals for products, stock units, low-stock products, and categories, plus a stock-health visualization.
-- Low-stock watch view, refresh, loading and empty states, server-error messages, and last-successful-snapshot labeling when a refresh fails.
+- Low-stock watch view, loading and empty states, server-error messages, and last-successful-snapshot labeling when a refresh fails.
 - Responsive layout, keyboard-operable native dialogs, focus restoration, screen-reader labels, reduced-motion support, and self-hosted SVG assets.
 - In-app documentation, links to both source repositories, Group 12 contributor credits, and a scroll hint when the table overflows.
 - Distinct out-of-stock badges, precise price display, accessible sort announcements, and dialogs that keep the background from scrolling.
@@ -71,7 +71,7 @@ ID, quantity, and minimum stock must be integers between 0 and 2,147,483,647. Pr
 
 Low stock means **`quantity <= minStock`**, matching the previous website. Equality and zero quantity with zero minimum both need attention. Stock health counts products strictly above their minimum. Dashboard totals are calculated from the complete `/products` response, independently of the active view. Read operations can span separate API requests; concurrent external writes may change inventory between those responses. Failed refreshes retain and explicitly label the last successful snapshot.
 
-Zero quantity is labeled **Out of stock** and remains included in low-stock totals and Stock watch. Saving or deleting refreshes the current search, sort, or stock-watch view. A renamed or replenished product may leave that view; Show All Products restores the full list. Choosing a different view clears the search input. Retry and Refresh repeat the latest requested view, even when its first request failed; retained rows and sort announcements continue to describe the last successful view until the request succeeds.
+Zero quantity is labeled **Out of stock** and remains included in low-stock totals and Stock watch. Saving or deleting refreshes the current search, sort, or stock-watch view. A renamed or replenished product may leave that view; Show All Products restores the full list. Choosing a different view clears the search input. Retry repeats the latest requested view, even when its first request failed; retained rows and sort announcements continue to describe the last successful view until the request succeeds.
 
 ## Production API configuration
 
@@ -143,4 +143,4 @@ DSA Finals Project · Group 12
 - Ahtisham Asghar — BSCY51F25S075
 - Abubakar Siddique — BSCY51F25S058
 
-The supplied `index.html`, `script.js`, and `style.css` were reviewed against the current React application and actual Crow contracts. CRUD, search, DSA operations, credits, documentation, and mobile scroll guidance already existed and were retained. The review restored distinct zero-stock status, precise prices, sort announcements, background scroll locking, and view-preserving refresh after mutations; it also fixed retrying a failed view. The reference documentation contained only a placeholder, so the existing Stockroom guide remains the substantive documentation. Stockroom retains its independent layout, palette, typography, and components.
+The supplied `index.html`, `script.js`, and `style.css` were reviewed against the current React application and actual Crow contracts. CRUD, search, DSA operations, credits, documentation, and mobile scroll guidance already existed and were retained. The review restored distinct zero-stock status, precise prices, sort announcements, background scroll locking, and view-preserving refresh after mutations; it also fixed retrying a failed view. The project header features Group 12 and both contributors; sidebar resources and the connection button beneath the logo keep project documentation and setup accessible. Add Product sits in the inventory header, and the explicit Search button remains available alongside live search. The reference documentation contained only a placeholder, so the existing Stockroom guide remains the substantive documentation. Stockroom retains its independent layout, palette, typography, and components.

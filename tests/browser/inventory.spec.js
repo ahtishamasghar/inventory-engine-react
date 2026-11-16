@@ -204,7 +204,9 @@ test('network and failed writes never display invented success', async ({
   await expect(page.getByRole('dialog')).toBeVisible()
   await page.getByRole('button', { name: 'Cancel', exact: true }).click()
   await page.route('**/api/products', (route) => route.abort())
-  await page.getByRole('button', { name: 'Refresh', exact: true }).click()
+  await page
+    .getByRole('button', { name: 'Show All Products', exact: true })
+    .click()
   await expect(page.getByRole('alert')).toContainText(
     'last successful snapshot',
   )
@@ -340,6 +342,47 @@ test('project credits, source links, documentation and mobile table guidance', a
     'BSCY51F25S058',
   ])
     await expect(page.getByText(text, { exact: true })).toBeVisible()
+  const header = page.getByRole('banner')
+  await expect(
+    header.getByRole('heading', {
+      name: 'Dynamic Inventory Optimization Engine',
+    }),
+  ).toBeVisible()
+  await expect(
+    header.getByText('Ahtisham Asghar', { exact: true }),
+  ).toBeVisible()
+  await expect(
+    header.getByText('Abubakar Siddique', { exact: true }),
+  ).toBeVisible()
+  await expect(
+    header.getByRole('button', { name: 'Explore the project' }),
+  ).toBeVisible()
+  await expect(
+    page
+      .locator('.inventory-heading')
+      .getByRole('button', { name: 'Add Product', exact: true }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('button', { name: 'Refresh', exact: true }),
+  ).toHaveCount(0)
+  await expect(
+    page.getByRole('button', { name: 'Search by ID', exact: true }),
+  ).toBeVisible()
+  for (const text of [
+    'A CLEAR VIEW OF WHAT’S IN STORE',
+    'Everything in its place. Every product accounted for.',
+    'Your API is the source of truth',
+    'Built for better inventory decisions.',
+    'Your operations, organized',
+    'Less guesswork.',
+  ])
+    await expect(page.getByText(text, { exact: false })).toHaveCount(0)
+  await expect(
+    page.locator('.sidebar-brand').getByRole('button', {
+      name: 'Connection details: API connected',
+      exact: true,
+    }),
+  ).toBeVisible()
   await expect(
     page.getByRole('link', {
       name: 'Backend source code (opens in a new tab)',
