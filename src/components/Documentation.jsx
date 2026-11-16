@@ -58,7 +58,9 @@ export default function Documentation({ onClose }) {
             <li>
               <strong>Keep records current.</strong> Use the pencil to edit a
               product or the trash icon to delete it. IDs stay fixed during
-              edits, and deletion always asks for confirmation.
+              edits, and deletion always asks for confirmation. Saving or
+              deleting refreshes the current view, including its search or sort
+              order.
             </li>
             <li>
               <strong>Review stock.</strong> Stock watch shows every product at
@@ -75,9 +77,12 @@ export default function Documentation({ onClose }) {
             their minimum, including zero quantity with a zero minimum. Stock
             health measures the share strictly above minimum. Dashboard totals
             always describe the full inventory, even while a search is active.
+            Zero quantity is labeled Out of stock and still counts toward low
+            stock.
           </p>
           <p>
             Prices use your inventory’s currency; the API does not define one.
+            Prices show at least two decimal places and retain finer precision.
             If a connection fails, a visible warning marks any retained data as
             a previous snapshot.
           </p>

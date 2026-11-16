@@ -61,8 +61,11 @@ export default function App() {
   const [documentation, setDocumentation] = useState(false)
   const requestRef = useRef(null)
   const searchTimer = useRef(null)
+  // Keep request intent separate from the last successful snapshot shown below.
+  const requestedView = useRef({ view: 'all', query: '' })
 
   const load = useCallback(async (nextView = 'all', id = '') => {
+    requestedView.current = { view: nextView, query: id }
     clearTimeout(searchTimer.current)
     requestRef.current?.abort()
     const controller = new AbortController()
@@ -97,7 +100,10 @@ export default function App() {
       if (nextView === 'search' || nextView === 'name') setActiveSearch(id)
       setUpdated(new Date())
     } catch (err) {
-      if (!controller.signal.aborted) setError(err.message)
+      if (!controller.signal.aborted)
+        setError(
+          `Couldn’t load ${viewLabels[nextView].toLowerCase()}${id !== '' ? ` for “${id}”` : ''}. ${err.message}`,
+        )
     } finally {
       if (!controller.signal.aborted) setLoading(false)
     }
@@ -125,7 +131,7 @@ export default function App() {
     await api.save(product, editing)
     setEditor(null)
     setNotice(`${product.name} ${editing ? 'updated' : 'added'} successfully.`)
-    await load('all')
+    await refreshView()
   }
   async function remove() {
     setDeleteBusy(true)
@@ -134,7 +140,7 @@ export default function App() {
       await api.remove(deleting.id)
       setNotice(`${deleting.name} deleted successfully.`)
       setDeleting(null)
-      await load('all')
+      await refreshView()
     } catch (err) {
       setDeleteError(err.message)
     } finally {
@@ -147,6 +153,7 @@ export default function App() {
       mode === 'id' &&
       (!/^\d+$/.test(value.trim()) || Number(value) > MAX_INTEGER)
     ) {
+      requestRef.current?.abort()
       setSearchError(
         `Enter a product ID from 0 to ${MAX_INTEGER.toLocaleString('en')}.`,
       )
@@ -174,9 +181,16 @@ export default function App() {
     runSearch(search, searchMode)
   }
   function showAll() {
-    setSearch('')
     setSearchMode('id')
-    load('all')
+    selectView('all')
+  }
+  function selectView(nextView) {
+    setSearch('')
+    return load(nextView)
+  }
+  function refreshView() {
+    const { view: nextView, query } = requestedView.current
+    return load(nextView, query)
   }
 
   return (
@@ -214,7 +228,7 @@ export default function App() {
           <button
             aria-label="Stock watch"
             className={view === 'low' ? 'nav-item active' : 'nav-item'}
-            onClick={() => load('low')}
+            onClick={() => selectView('low')}
           >
             <TriangleAlert size={18} />
             <span>Stock watch</span>
@@ -329,9 +343,7 @@ export default function App() {
               </div>
               <button
                 className="button small secondary"
-                onClick={() =>
-                  base ? load(view, activeSearch) : setHelp(true)
-                }
+                onClick={() => (base ? refreshView() : setHelp(true))}
                 disabled={loading}
               >
                 {base ? 'Retry connection' : 'Setup details'}
@@ -342,7 +354,7 @@ export default function App() {
           <Dashboard
             products={all}
             stale={Boolean(error)}
-            onLowStock={() => load('low')}
+            onLowStock={() => selectView('low')}
           />
           <section
             className="inventory-card"
@@ -358,7 +370,7 @@ export default function App() {
               </div>
               <button
                 className="text-button"
-                onClick={() => load(view, activeSearch)}
+                onClick={refreshView}
                 disabled={loading}
               >
                 <RefreshCw size={15} className={loading ? 'spin' : ''} />
@@ -412,7 +424,7 @@ export default function App() {
                 <button
                   className={`button tool ${view === 'id' ? 'selected' : ''}`}
                   aria-pressed={view === 'id'}
-                  onClick={() => load('id')}
+                  onClick={() => selectView('id')}
                   disabled={loading}
                 >
                   <ArrowDownNarrowWide size={16} />
@@ -421,7 +433,7 @@ export default function App() {
                 <button
                   className={`button tool ${view === 'price' ? 'selected' : ''}`}
                   aria-pressed={view === 'price'}
-                  onClick={() => load('price')}
+                  onClick={() => selectView('price')}
                   disabled={loading}
                 >
                   <ArrowUpDown size={16} />
@@ -430,7 +442,7 @@ export default function App() {
                 <button
                   className={`button tool ${view === 'lowest' ? 'selected' : ''}`}
                   aria-pressed={view === 'lowest'}
-                  onClick={() => load('lowest')}
+                  onClick={() => selectView('lowest')}
                   disabled={loading}
                 >
                   <ChartNoAxesCombined size={16} />
@@ -450,6 +462,13 @@ export default function App() {
             <div className="view-bar">
               <span role="status" aria-live="polite" aria-atomic="true">
                 <span className="view-dot" />
+                {loading
+                  ? all === null
+                    ? 'Loading… · '
+                    : 'Updating… · Previous view: '
+                  : error && all !== null
+                    ? 'Last successful view: '
+                    : ''}
                 {viewLabels[view]}
                 {view === 'search' ? ` · #${activeSearch}` : ''}
                 {view === 'name' ? ` · “${activeSearch}”` : ''}
@@ -546,7 +565,7 @@ export default function App() {
                 <p>Find your lowest-stock product and plan your next move.</p>
                 <button
                   className="text-button"
-                  onClick={() => load('lowest')}
+                  onClick={() => selectView('lowest')}
                   disabled={loading}
                 >
                   Check Lowest Stock

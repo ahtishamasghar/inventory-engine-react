@@ -13,9 +13,12 @@ export default function Dialog({
   useEffect(() => {
     const element = ref.current
     const previous = document.activeElement
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
     element.showModal()
     return () => {
       element.close()
+      document.body.style.overflow = previousOverflow
       previous?.focus()
     }
   }, [])

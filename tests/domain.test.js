@@ -6,6 +6,7 @@ import {
   summarize,
   isLow,
   MAX_INTEGER,
+  price,
 } from '../src/domain.js'
 const product = {
   id: '0',
@@ -15,6 +16,13 @@ const product = {
   quantity: '0',
   minStock: '0',
 }
+
+test('price display retains sub-cent and stored decimal precision', () => {
+  assert.equal(price(0), '0.00')
+  assert.equal(price(12.5), '12.50')
+  assert.equal(price(0.00001), '0.00001')
+  assert.equal(price(12.3456789), '12.3456789')
+})
 
 test('accepts zero values and trims the product payload', () => {
   assert.deepEqual(validateProduct(product), {})

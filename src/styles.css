@@ -774,6 +774,10 @@ tbody tr:hover {
   color: #90602c;
   background: #fff4e2;
 }
+.badge.out {
+  color: #a14035;
+  background: #fceeea;
+}
 .badge.neutral {
   color: #5e6f53;
   background: #f0f1ed;

@@ -14,6 +14,8 @@ A React + Vite inventory workspace for the existing C++17 Crow Inventory Optimiz
 - Low-stock watch view, refresh, loading and empty states, server-error messages, and last-successful-snapshot labeling when a refresh fails.
 - Responsive layout, keyboard-operable native dialogs, focus restoration, screen-reader labels, reduced-motion support, and self-hosted SVG assets.
 - In-app documentation, links to both source repositories, Group 12 contributor credits, and a scroll hint when the table overflows.
+- Distinct out-of-stock badges, precise price display, accessible sort announcements, and dialogs that keep the background from scrolling.
+- Search, sorting, and stock-watch context retained after product changes; retry repeats the failed request while clearly labeling the previous snapshot.
 - No runtime fixtures, simulated inventory, offline writes, client-side replacements for backend sorting/search algorithms, or fabricated statistics.
 
 ## Requirements and local development
@@ -33,7 +35,7 @@ To use a different API, create an ignored `.env.local`:
 VITE_API_BASE_URL=https://your-api.example.com/api
 ```
 
-The base URL **includes `/api`** and has no trailing endpoint such as `/products`. Restart Vite after changing environment variables. `VITE_` values are public, embedded at build time, and must never contain secrets. The frontend does not assume a currency because the backend model does not provide one; prices are displayed as numbers with two decimal places.
+The base URL **includes `/api`** and has no trailing endpoint such as `/products`. Restart Vite after changing environment variables. `VITE_` values are public, embedded at build time, and must never contain secrets. The frontend does not assume a currency because the backend model does not provide one; prices show at least two decimal places and retain finer precision, so a stored price such as `0.00001` does not appear as `0.00`.
 
 ## Backend contract
 
@@ -68,6 +70,8 @@ Name search calls the backend’s case-insensitive substring search. Both ID and
 ID, quantity, and minimum stock must be integers between 0 and 2,147,483,647. Price must be finite and nonnegative. The form requires nonblank name and category. Errors from Crow's plain-text responses are surfaced directly; failed writes never report success. Requests time out after 15 seconds, and superseded read requests are cancelled.
 
 Low stock means **`quantity <= minStock`**, matching the previous website. Equality and zero quantity with zero minimum both need attention. Stock health counts products strictly above their minimum. Dashboard totals are calculated from the complete `/products` response, independently of the active view. Read operations can span separate API requests; concurrent external writes may change inventory between those responses. Failed refreshes retain and explicitly label the last successful snapshot.
+
+Zero quantity is labeled **Out of stock** and remains included in low-stock totals and Stock watch. Saving or deleting refreshes the current search, sort, or stock-watch view. A renamed or replenished product may leave that view; Show All Products restores the full list. Choosing a different view clears the search input. Retry and Refresh repeat the latest requested view, even when its first request failed; retained rows and sort announcements continue to describe the last successful view until the request succeeds.
 
 ## Production API configuration
 
@@ -106,7 +110,8 @@ npm run test:e2e
 ```
 
 - Node tests cover validation boundaries, statistics, exact API routes/methods, response validation, cancellation, and request failures.
-- Playwright tests exercise all required actions on desktop and mobile, check layout overflow, modal focus, pending and empty states, failed requests/writes, and automated WCAG A/AA checks on the dashboard and editor.
+- Playwright tests exercise all required actions on desktop and mobile, including view retention after edits/deletes, zero stock, precise prices, accessible sort headers, failed-view retries, layout overflow, modal focus and scroll locking, pending and empty states, failed requests/writes, and automated WCAG A/AA checks on the dashboard, editor, documentation, and stock watch.
+- A production-preview project builds without an API URL and verifies honest setup feedback, unknown statistics, no API requests, connection-guide accessibility, and responsive layouts at widths from 320 to 1440 pixels. Both development and production preview servers are started by Playwright; keep ports 5173 and 4173 available.
 - Browser tests use explicit intercepted fixtures only under `tests/`; production code never imports them.
 - If using an existing system Chromium, set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium`.
 
@@ -138,4 +143,4 @@ DSA Finals Project · Group 12
 - Ahtisham Asghar — BSCY51F25S075
 - Abubakar Siddique — BSCY51F25S058
 
-Credits and the inclusive low-stock rule come from the supplied previous website. Stockroom retains its independent React interface and styling. The supplied HTML references a separate script and stylesheet that were not attached; name-search behavior is verified against the C++ backend source.
+The supplied `index.html`, `script.js`, and `style.css` were reviewed against the current React application and actual Crow contracts. CRUD, search, DSA operations, credits, documentation, and mobile scroll guidance already existed and were retained. The review restored distinct zero-stock status, precise prices, sort announcements, background scroll locking, and view-preserving refresh after mutations; it also fixed retrying a failed view. The reference documentation contained only a placeholder, so the existing Stockroom guide remains the substantive documentation. Stockroom retains its independent layout, palette, typography, and components.

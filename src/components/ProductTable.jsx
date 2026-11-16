@@ -109,9 +109,18 @@ export default function ProductTable({
           </caption>
           <thead>
             <tr>
-              <th scope="col">Product</th>
+              <th
+                scope="col"
+                aria-sort={view === 'id' ? 'ascending' : undefined}
+              >
+                Product
+              </th>
               <th scope="col">Category</th>
-              <th scope="col" className="numeric">
+              <th
+                scope="col"
+                className="numeric"
+                aria-sort={view === 'price' ? 'ascending' : undefined}
+              >
                 Price
               </th>
               <th scope="col" className="numeric">
@@ -156,9 +165,15 @@ export default function ProductTable({
                 </td>
                 <td className="numeric muted">{number(p.minStock)}</td>
                 <td>
-                  <span className={`badge ${isLow(p) ? 'warning' : 'healthy'}`}>
+                  <span
+                    className={`badge ${p.quantity === 0 ? 'out' : isLow(p) ? 'warning' : 'healthy'}`}
+                  >
                     <i />
-                    {isLow(p) ? 'Low stock' : 'In stock'}
+                    {p.quantity === 0
+                      ? 'Out of stock'
+                      : isLow(p)
+                        ? 'Low stock'
+                        : 'In stock'}
                   </span>
                 </td>
                 <td>

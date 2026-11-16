@@ -5,7 +5,7 @@ export const number = (value) =>
 export const price = (value) =>
   new Intl.NumberFormat('en', {
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    maximumFractionDigits: 20,
   }).format(value)
 
 export function validateProduct(values) {

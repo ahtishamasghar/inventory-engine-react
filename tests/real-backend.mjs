@@ -44,18 +44,55 @@ try {
   await page.getByRole('button', { name: `Edit Product: ${name}` }).waitFor()
   let product = await (await fetch(`${base}/products/${productId}`)).json()
   assert.equal(product.quantity, 7)
+  await page.getByRole('button', { name: 'Stock watch', exact: true }).click()
+  await page.getByRole('button', { name: `Edit Product: ${name}` }).click()
+  await page.getByLabel('Quantity', { exact: true }).fill('0')
+  await page.getByLabel('Minimum Stock', { exact: true }).fill('0')
+  await page.getByLabel('Price', { exact: true }).fill('0.00001')
+  await page.getByRole('button', { name: 'Save Product' }).click()
+  await page.getByRole('dialog').waitFor({ state: 'detached' })
+  await page
+    .getByRole('status')
+    .filter({ hasText: 'Low stock products' })
+    .waitFor()
+  const zeroStockRow = page.getByRole('row').filter({ hasText: name })
+  await zeroStockRow.getByText('Out of stock', { exact: true }).waitFor()
+  assert.ok((await zeroStockRow.textContent()).includes('0.00001'))
   await page.getByRole('button', { name: `Edit Product: ${name}` }).click()
   await page.getByLabel('Quantity', { exact: true }).fill('15')
   await page.getByRole('button', { name: 'Save Product' }).click()
   await page.getByRole('dialog').waitFor({ state: 'detached' })
   product = await (await fetch(`${base}/products/${productId}`)).json()
   assert.equal(product.quantity, 15)
+  await page
+    .getByRole('button', { name: `Edit Product: ${name}` })
+    .waitFor({ state: 'detached' })
+  assert.ok(
+    (
+      await page
+        .getByRole('status')
+        .filter({ hasText: 'Low stock products' })
+        .textContent()
+    ).includes('Low stock products'),
+  )
   for (const [button, endpoint, field] of [
     ['Sort by ID', 'sorted-by-id', 'id'],
     ['Sort by Price', 'sorted-by-price', 'price'],
   ]) {
     const response = page.waitForResponse((r) => r.url().endsWith(endpoint))
     await page.getByRole('button', { name: button, exact: true }).click()
+    const sorted = (await (await response).json()).products
+    assert.ok(
+      sorted.every((p, i) => i === 0 || sorted[i - 1][field] <= p[field]),
+    )
+    await page
+      .getByRole('status')
+      .filter({ hasText: field === 'id' ? 'Sorted by ID' : 'Sorted by price' })
+      .waitFor()
+    assert.deepEqual(
+      await page.locator('tbody .product-cell > div > span').allTextContents(),
+      sorted.map((p) => `#${p.id}`),
+    )
     const data = await (await response).json()
     assert.ok(
       data.products.every(
@@ -112,7 +149,7 @@ try {
   await page.screenshot({ path: '/tmp/stockroom-mobile.png', fullPage: true })
   assert.deepEqual(errors, [])
   console.log(
-    'PASS: real Crow API create, edit, encoded name search, case-insensitive name search, ID search, BST ID sort, merge price sort, heap lowest stock, delete, desktop/mobile layouts and browser runtime.',
+    'PASS: real Crow API create, edit, stock-watch view retention, zero stock with zero minimum, precise prices, encoded name search, case-insensitive name search, ID search, BST ID sort, merge price sort, heap lowest stock, delete, desktop/mobile layouts and browser runtime.',
   )
 } finally {
   if ((await fetch(`${base}/products/${productId}`)).ok)

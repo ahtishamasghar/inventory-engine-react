@@ -53,11 +53,11 @@ async function fixture(page) {
     }
     if (path.endsWith('/sorted-by-id'))
       return route.fulfill({
-        json: { products: [products[1], products[2], products[0]] },
+        json: { products: [...products].sort((a, b) => a.id - b.id) },
       })
     if (path.endsWith('/sorted-by-price'))
       return route.fulfill({
-        json: { products: [products[2], products[0], products[1]] },
+        json: { products: [...products].sort((a, b) => a.price - b.price) },
       })
     if (path.endsWith('/lowest-stock'))
       return route.fulfill({ json: products[1] })
@@ -381,4 +381,129 @@ test('project credits, source links, documentation and mobile table guidance', a
   await expect(
     page.getByRole('button', { name: 'Documentation', exact: true }),
   ).toBeFocused()
+})
+
+test('zero stock, precise prices and sort announcements survive stock-watch edits', async ({
+  page,
+}) => {
+  await fixture(page)
+  await page.goto('./')
+  await expect(page.getByTestId('total-products')).toHaveText('3')
+  await page.getByRole('button', { name: 'Stock watch', exact: true }).click()
+  await expect(page.locator('tbody tr')).toHaveCount(2)
+  await page.getByRole('button', { name: 'Edit Product: Ceramic cup' }).click()
+  expect(await page.evaluate(() => document.body.style.overflow)).toBe('hidden')
+  await page.getByLabel('Quantity', { exact: true }).fill('0')
+  await page.getByLabel('Minimum Stock', { exact: true }).fill('0')
+  await page.getByLabel('Price', { exact: true }).fill('0.00001')
+  await page.getByRole('button', { name: 'Save Product' }).click()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  expect(await page.evaluate(() => document.body.style.overflow)).toBe('')
+  await expect(
+    page.getByRole('status').filter({ hasText: 'Low stock products' }),
+  ).toContainText('2 results')
+  const cup = page.getByRole('row').filter({ hasText: 'Ceramic cup' })
+  await expect(cup).toContainText('Out of stock')
+  await expect(cup).toContainText('0.00001')
+  await expect(page.getByTestId('low-stock')).toHaveText('2')
+  await expect(page.getByTestId('total-stock')).toHaveText('34')
+  const results = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+    .analyze()
+  expect(results.violations).toEqual([])
+  await page.getByRole('button', { name: 'Sort by ID', exact: true }).click()
+  await expect(
+    page.getByRole('columnheader', { name: 'Product', exact: true }),
+  ).toHaveAttribute('aria-sort', 'ascending')
+  await page.getByRole('button', { name: 'Sort by Price', exact: true }).click()
+  await expect(
+    page.getByRole('columnheader', { name: 'Price', exact: true }),
+  ).toHaveAttribute('aria-sort', 'ascending')
+  await expect(
+    page.getByRole('columnheader', { name: 'Product', exact: true }),
+  ).not.toHaveAttribute('aria-sort')
+})
+
+test('save and delete retain name search; selecting another view clears the input', async ({
+  page,
+}) => {
+  await fixture(page)
+  await page.goto('./')
+  await expect(page.getByTestId('total-products')).toHaveText('3')
+  await page.getByLabel('Search mode').selectOption('name')
+  await page.getByLabel('Product name to search').fill('cup')
+  await expect(page.locator('tbody tr')).toHaveCount(1)
+  await page.getByRole('button', { name: 'Edit Product: Ceramic cup' }).click()
+  await page.getByLabel('Quantity', { exact: true }).fill('12')
+  await page.getByRole('button', { name: 'Save Product' }).click()
+  await expect(
+    page.getByRole('status').filter({ hasText: 'Name search results' }),
+  ).toContainText('“cup” · 1 result')
+  await expect(page.getByLabel('Product name to search')).toHaveValue('cup')
+  await expect(page.getByTestId('total-stock')).toHaveText('46')
+  await page
+    .getByRole('button', { name: 'Delete Product: Ceramic cup' })
+    .click()
+  await page
+    .getByRole('dialog')
+    .getByRole('button', { name: 'Delete Product', exact: true })
+    .click()
+  await expect(
+    page.getByRole('heading', { name: 'No matching products' }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('status').filter({ hasText: 'Name search results' }),
+  ).toContainText('“cup” · 0 results')
+  await expect(page.getByTestId('total-products')).toHaveText('2')
+  await page.getByRole('button', { name: 'Sort by Price', exact: true }).click()
+  await expect(page.getByLabel('Product name to search')).toHaveValue('')
+  await expect(page.locator('tbody tr')).toHaveCount(2)
+})
+
+test('retry repeats a failed sort or name query while labeling the previous snapshot', async ({
+  page,
+}) => {
+  await fixture(page)
+  let failSort = true
+  await page.route('**/api/products/sorted-by-price', (route) =>
+    failSort
+      ? route.fulfill({ status: 503, body: 'Sort temporarily unavailable' })
+      : route.fallback(),
+  )
+  await page.goto('./')
+  await expect(page.getByTestId('total-products')).toHaveText('3')
+  await page.getByRole('button', { name: 'Sort by Price', exact: true }).click()
+  await expect(page.getByRole('alert')).toContainText(
+    'Couldn’t load sorted by price',
+  )
+  await expect(
+    page.getByRole('status').filter({ hasText: 'Last successful view' }),
+  ).toContainText('All products')
+  failSort = false
+  const retriedSort = page.waitForResponse('**/api/products/sorted-by-price')
+  await page
+    .getByRole('button', { name: 'Retry connection', exact: true })
+    .click()
+  await retriedSort
+  await expect(page.locator('tbody tr').first()).toContainText('Desk tray')
+  await expect(page.getByRole('alert')).toHaveCount(0)
+  let failSearch = true
+  await page.route('**/api/products/search?name=cup', (route) =>
+    failSearch
+      ? route.fulfill({ status: 503, body: 'Search temporarily unavailable' })
+      : route.fallback(),
+  )
+  await page.getByLabel('Search mode').selectOption('name')
+  await page.getByLabel('Product name to search').fill('cup')
+  await expect(page.getByRole('alert')).toContainText('for “cup”')
+  await expect(
+    page.getByRole('status').filter({ hasText: 'Last successful view' }),
+  ).toContainText('Sorted by price')
+  failSearch = false
+  await page
+    .getByRole('button', { name: 'Retry connection', exact: true })
+    .click()
+  await expect(page.locator('tbody tr')).toHaveCount(1)
+  await expect(page.locator('tbody')).toContainText('Ceramic cup')
+  await expect(page.getByRole('alert')).toHaveCount(0)
 })
