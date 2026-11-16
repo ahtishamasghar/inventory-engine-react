@@ -14,7 +14,10 @@ test('production without a backend explains setup and remains usable at narrow w
   await page.goto('./')
   await expect(
     page.getByText('API not configured', { exact: true }),
-  ).toBeVisible()
+  ).toHaveCount(0)
+  await expect(page.locator('.sidebar-brand').getByRole('button')).toHaveCount(
+    0,
+  )
   const alert = page.getByRole('alert')
   await expect(alert).toContainText('Connect the API to load your inventory.')
   await expect(alert).not.toContainText('VITE_API_BASE_URL')

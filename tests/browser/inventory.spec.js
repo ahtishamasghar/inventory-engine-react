@@ -363,15 +363,8 @@ test('project credits, source links, documentation and mobile table guidance', a
       headingBox.y + headingBox.height / 2 - addBox.y - addBox.height / 2,
     ),
   ).toBeLessThanOrEqual(1)
-  const wordmarkBox = await page
-    .locator('.brand > span:last-child')
-    .boundingBox()
-  const connectionBox = await page
-    .locator('.sidebar-brand .connection-pill')
-    .boundingBox()
-  expect(Math.abs(wordmarkBox.x - connectionBox.x)).toBeLessThanOrEqual(1)
-  expect(connectionBox.y).toBeGreaterThanOrEqual(
-    wordmarkBox.y + wordmarkBox.height,
+  await expect(page.locator('.sidebar-brand').getByRole('button')).toHaveCount(
+    0,
   )
   await expect(
     header.getByRole('heading', {
@@ -433,12 +426,6 @@ test('project credits, source links, documentation and mobile table guidance', a
   } else {
     expect(resourceBox.y + resourceBox.height).toBeGreaterThan(950)
   }
-  await expect(
-    page.locator('.sidebar-brand').getByRole('button', {
-      name: 'Connection details: API connected',
-      exact: true,
-    }),
-  ).toBeVisible()
   const resources = page.getByRole('navigation', { name: 'Project resources' })
   await expect(resources.getByRole('link')).toHaveCount(3)
   await expect(resources.getByRole('button')).toHaveCount(0)

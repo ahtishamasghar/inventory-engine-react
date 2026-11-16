@@ -161,34 +161,11 @@ button:disabled .spin {
 .main-shell {
   margin-left: 238px;
 }
-.connection-pill {
-  display: flex;
-  gap: 7px;
-  align-items: center;
-  font-size: 10px;
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  padding: 7px 10px;
-  background: white;
-  color: #657665;
-}
-.connection-pill i,
 .badge i {
   width: 5px;
   height: 5px;
   border-radius: 50%;
   background: currentColor;
-}
-.connection-pill.offline {
-  background: #fff8ed;
-  color: #9d672f;
-  border-color: #ecdfc9;
-}
-.connection-pill.online {
-  color: #3e7158;
-}
-.connection-pill.connecting {
-  color: #85773d;
 }
 main {
   max-width: 1560px;
@@ -1190,10 +1167,6 @@ tbody tr:hover {
   .main-shell {
     margin-left: 0;
   }
-  .connection-pill {
-    font-size: 8px;
-    padding: 5px 7px;
-  }
   main {
     padding: 25px 17px 20px;
   }
@@ -1738,33 +1711,18 @@ tbody tr:hover {
   }
 }
 
-/* Align connection status with the wordmark rather than the icon. */
+/* Keep the wordmark compact across sidebar and mobile layouts. */
 .sidebar-brand {
   display: grid;
   grid-template-columns: 39px minmax(0, 1fr);
-  gap: 8px 10px;
-  margin: 0 12px 32px;
+  column-gap: 10px;
+  margin: 0 12px 26px;
 }
 .sidebar-brand .brand {
   grid-column: 1 / -1;
   display: grid;
   grid-template-columns: subgrid;
   margin: 0;
-}
-.sidebar-brand .connection-pill {
-  grid-column: 2;
-  justify-self: start;
-  width: fit-content;
-  max-width: 100%;
-  min-height: 30px;
-  margin: 0;
-  padding: 6px 8px;
-  font-size: 9px;
-  gap: 6px;
-  line-height: 1.4;
-}
-.sidebar-brand .connection-pill:hover {
-  box-shadow: 0 0 0 2px #a7b98b;
 }
 .inventory-heading h2 {
   margin: 0;
@@ -1795,25 +1753,11 @@ tbody tr:hover {
   .sidebar-brand .brand {
     grid-template-columns: 1fr;
   }
-  .sidebar-brand .connection-pill {
-    grid-column: 1;
-    justify-self: center;
-    justify-content: center;
-    width: 42px;
-  }
-  .sidebar-brand .connection-pill span {
-    display: none;
-  }
 }
 @media (max-width: 600px) {
   .sidebar-brand {
     grid-template-columns: 33px minmax(0, 1fr);
     gap: 8px 10px;
     margin: 0;
-  }
-  .sidebar-brand .connection-pill {
-    min-height: 28px;
-    padding: 5px 8px;
-    font-size: 8px;
   }
 }

@@ -123,16 +123,6 @@ export default function App() {
     ? Math.round((healthyCount / all.length) * 100)
     : 0
 
-  const connectionLabel = loading
-    ? 'Connecting'
-    : !base
-      ? 'API not configured'
-      : error
-        ? 'Connection needs attention'
-        : all === null
-          ? 'Waiting for inventory'
-          : 'API connected'
-
   async function save(product, editing) {
     await api.save(product, editing)
     setEditor(null)
@@ -212,16 +202,6 @@ export default function App() {
             </span>
             <span>StockRoom</span>
           </a>
-          <button
-            className={`connection-pill ${error || !base ? 'offline' : loading ? 'connecting' : 'online'}`}
-            onClick={() => setHelp(true)}
-            aria-label={`Connection details: ${connectionLabel}`}
-            title={connectionLabel}
-            aria-haspopup="dialog"
-          >
-            <i aria-hidden="true" />
-            <span>{connectionLabel}</span>
-          </button>
         </div>
         <span className="nav-label">WORKSPACE</span>
         <nav aria-label="Main navigation">

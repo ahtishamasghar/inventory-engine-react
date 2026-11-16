@@ -1,7 +1,7 @@
 // Opt-in test against a disposable instance of the actual Crow server.
 // Creates one product and removes it in finally. Never point at production.
 import assert from 'node:assert/strict'
-import { chromium } from '@playwright/test'
+import { chromium, expect } from '@playwright/test'
 
 if (
   !process.env.REAL_API_BASE_URL ||
@@ -22,7 +22,9 @@ const errors = []
 page.on('pageerror', (error) => errors.push(error.message))
 try {
   await page.goto('http://127.0.0.1:5173/inventory-engine-react/')
-  await page.getByText('API connected', { exact: true }).waitFor()
+  await expect(page.getByTestId('total-products')).toHaveText(
+    String(before.products.length),
+  )
   assert.equal(
     await page.getByTestId('total-products').textContent(),
     String(before.products.length),
@@ -135,7 +137,9 @@ try {
     .click()
   await page.getByRole('dialog').waitFor({ state: 'detached' })
   assert.equal((await fetch(`${base}/products/${productId}`)).status, 404)
-  await page.getByText('API connected', { exact: true }).waitFor()
+  await expect(page.getByTestId('total-products')).toHaveText(
+    String(before.products.length),
+  )
   await page.screenshot({ path: '/tmp/stockroom-desktop.png', fullPage: true })
   await page.setViewportSize({ width: 390, height: 844 })
   assert.equal(
