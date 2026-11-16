@@ -1227,6 +1227,7 @@ h1 {
   gap: 12px 20px;
   align-items: start;
   padding: 0 var(--card-gutter) 20px;
+  border-bottom: 1px solid var(--line);
 }
 .search-form {
   display: grid;
