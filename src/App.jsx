@@ -207,6 +207,7 @@ export default function App() {
         <nav aria-label="Main navigation">
           <button
             aria-label="Dashboard"
+            aria-current={view !== 'low' ? 'page' : undefined}
             className={view !== 'low' ? 'nav-item active' : 'nav-item'}
             onClick={showAll}
           >
@@ -216,6 +217,7 @@ export default function App() {
           </button>
           <button
             aria-label="Stock watch"
+            aria-current={view === 'low' ? 'page' : undefined}
             className={view === 'low' ? 'nav-item active' : 'nav-item'}
             onClick={() => selectView('low')}
           >
@@ -315,9 +317,7 @@ export default function App() {
                     aria-describedby={searchError ? 'search-error' : undefined}
                     inputMode={searchMode === 'id' ? 'numeric' : 'text'}
                     placeholder={
-                      searchMode === 'id'
-                        ? 'Find a product by ID…'
-                        : 'Search all or part of a name…'
+                      searchMode === 'id' ? 'Enter an ID…' : 'Enter a name…'
                     }
                     value={search}
                     onChange={(e) => queueSearch(e.target.value)}
@@ -431,7 +431,7 @@ export default function App() {
                 </span>
               </div>
               <div
-                className="health-track"
+                className={`health-track${all?.length ? '' : ' empty'}`}
                 role="img"
                 aria-label={
                   all?.length
@@ -453,29 +453,24 @@ export default function App() {
               </div>
             </article>
             <article className="attention-card">
-              <div>
-                <span className="eyebrow">
-                  A SMALL CHECK. A BIG DIFFERENCE.
+              <div className="section-title">
+                <span className="health-symbol">
+                  <ChartNoAxesCombined size={20} />
                 </span>
-                <h2>
-                  Stay one step ahead
-                  <br />
-                  of your next stockout.
-                </h2>
-                <p>Find your lowest-stock product and plan your next move.</p>
-                <button
-                  className="text-button"
-                  onClick={() => selectView('lowest')}
-                  disabled={loading}
-                >
-                  Check Lowest Stock
-                  <ArrowUpRight size={17} />
-                </button>
+                <h2>Stock review</h2>
               </div>
-              <div className="box-art" aria-hidden="true">
-                <Box size={94} strokeWidth={0.8} />
-                <span className="art-ring" />
-              </div>
+              <p>
+                Find the product with the fewest units to review its stock
+                level.
+              </p>
+              <button
+                className="text-button"
+                onClick={() => selectView('lowest')}
+                disabled={loading}
+              >
+                Check Lowest Stock
+                <ArrowUpRight size={17} />
+              </button>
             </article>
           </section>
         </main>

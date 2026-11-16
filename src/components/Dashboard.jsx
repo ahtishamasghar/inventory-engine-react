@@ -75,7 +75,7 @@ export default function Dashboard({ products, stale, onLowStock }) {
           <Layers3 size={20} strokeWidth={1.6} />
         </div>
         <strong>{stats ? number(stats.categories) : '—'}</strong>
-        <p>A place for every product</p>
+        <p>Distinct inventory categories</p>
         <div className="category-decoration" aria-hidden="true">
           <span />
           <span />
