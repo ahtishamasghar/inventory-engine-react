@@ -29,13 +29,13 @@ export default function Documentation({ onClose }) {
   return (
     <Dialog
       title="Workspace documentation"
-      eyebrow="Stockroom / Project guide"
+      eyebrow="StockRoom / Project guide"
       onClose={onClose}
       className="documentation-dialog"
     >
       <div className="help-content documentation-content">
         <p>
-          Stockroom is the React workspace for the{' '}
+          StockRoom is the React workspace for the{' '}
           <strong>Dynamic Inventory Optimization Engine</strong>, a C++17 Crow
           project built by Group 12. All product operations use the existing
           inventory API.

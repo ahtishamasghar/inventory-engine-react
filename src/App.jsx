@@ -4,16 +4,13 @@ import {
   ArrowUpDown,
   ArrowUpRight,
   Box,
-  BookOpen,
   ChartNoAxesCombined,
   Check,
-  CodeXml,
   LayoutDashboard,
   LoaderCircle,
   Package,
   Plus,
   Search,
-  Settings2,
   TriangleAlert,
   WifiOff,
   X,
@@ -26,6 +23,7 @@ import ProductForm from './components/ProductForm.jsx'
 import Dialog from './components/Dialog.jsx'
 import Documentation from './components/Documentation.jsx'
 import ProjectDetails from './components/ProjectDetails.jsx'
+import ProjectResources from './components/ProjectResources.jsx'
 
 const base = resolveBase(import.meta.env.VITE_API_BASE_URL, import.meta.env.DEV)
 const api = createApi(base)
@@ -208,12 +206,12 @@ export default function App() {
       </a>
       <aside className="sidebar">
         <div className="sidebar-brand">
-          <a className="brand" href="#main" aria-label="Stockroom home">
+          <a className="brand" href="#main" aria-label="StockRoom home">
             <span className="brand-symbol">
               <Box size={25} strokeWidth={1.7} />
             </span>
             <span>
-              stockroom<span className="brand-period">.</span>
+              StockRoom
               <small>INVENTORY ENGINE</small>
             </span>
           </a>
@@ -231,12 +229,12 @@ export default function App() {
         <span className="nav-label">WORKSPACE</span>
         <nav aria-label="Main navigation">
           <button
-            aria-label="Overview"
+            aria-label="Dashboard"
             className={view !== 'low' ? 'nav-item active' : 'nav-item'}
             onClick={showAll}
           >
             <LayoutDashboard size={18} />
-            <span>Overview</span>
+            <span>Dashboard</span>
             <span className="nav-dot" />
           </button>
           <button
@@ -248,49 +246,17 @@ export default function App() {
             <span>Stock watch</span>
             {lowCount != null && <span className="nav-count">{lowCount}</span>}
           </button>
-          <button
-            aria-label="Connection"
-            className="nav-item"
-            onClick={() => setHelp(true)}
-          >
-            <Settings2 size={18} />
-            <span>Connection</span>
-            <ArrowUpRight size={15} />
-          </button>
         </nav>
-        <nav className="project-resources" aria-label="Project resources">
-          <span className="nav-label">PROJECT RESOURCES</span>
-          <a
-            href="https://github.com/ahtishamasghar/inventory-optimization-engine"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Backend source code (opens in a new tab)"
-          >
-            <CodeXml size={18} />
-            <span>Source code</span>
-            <ArrowUpRight size={15} className="resource-arrow" />
-          </a>
-          <button
-            onClick={() => setDocumentation(true)}
-            aria-label="Documentation"
-            aria-haspopup="dialog"
-          >
-            <BookOpen size={18} />
-            <span>Documentation</span>
-            <ArrowUpRight size={15} className="resource-arrow" />
-          </button>
-        </nav>
+        <ProjectResources
+          className="sidebar-resources"
+          onDocumentation={() => setDocumentation(true)}
+        />
       </aside>
       <div className="main-shell">
         <header className="project-header">
           <ProjectDetails onDocumentation={() => setDocumentation(true)} />
         </header>
         <main id="main">
-          <div className="page-heading">
-            <h1>
-              Inventory overview<span>.</span>
-            </h1>
-          </div>
           {error && (
             <div className="connection-alert" role="alert">
               <WifiOff size={21} />
@@ -298,10 +264,10 @@ export default function App() {
                 <strong>
                   {base
                     ? 'We couldn’t refresh your inventory'
-                    : 'Connect your inventory API'}
+                    : 'Inventory API not connected'}
                 </strong>
                 <p>
-                  {error}
+                  {base ? error : 'Connect the API to load your inventory.'}
                   {all !== null
                     ? ' Displaying the last successful snapshot; values may be outdated.'
                     : ''}
@@ -317,6 +283,9 @@ export default function App() {
               </button>
             </div>
           )}
+          <div className="page-heading">
+            <h1>Dashboard</h1>
+          </div>
           <Dashboard
             products={all}
             stale={Boolean(error)}
@@ -365,9 +334,7 @@ export default function App() {
                         : 'Product name to search'
                     }
                     aria-invalid={!!searchError}
-                    aria-describedby={
-                      searchError ? 'search-error search-hint' : 'search-hint'
-                    }
+                    aria-describedby={searchError ? 'search-error' : undefined}
                     inputMode={searchMode === 'id' ? 'numeric' : 'text'}
                     placeholder={
                       searchMode === 'id'
@@ -415,10 +382,6 @@ export default function App() {
                 </button>
               </div>
             </div>
-            <p id="search-hint" className="search-hint">
-              Results update as you type. Name search matches any part of a
-              name.
-            </p>
             {searchError && (
               <p id="search-error" className="search-error" role="alert">
                 {searchError}
@@ -482,7 +445,6 @@ export default function App() {
                 </span>
                 <div>
                   <h2>Stock health</h2>
-                  <p>A quick pulse on your inventory.</p>
                 </div>
               </div>
               <div className="health-summary">
@@ -545,6 +507,9 @@ export default function App() {
           </section>
         </main>
       </div>
+      <footer className="mobile-project-resources">
+        <ProjectResources onDocumentation={() => setDocumentation(true)} />
+      </footer>
       {notice && (
         <div className="toast" role="status">
           <Check size={18} />
@@ -608,12 +573,12 @@ export default function App() {
       {help && (
         <Dialog
           title="Your workspace, connected"
-          eyebrow="Stockroom / Connection guide"
+          eyebrow="StockRoom / Connection guide"
           onClose={() => setHelp(false)}
         >
           <div className="help-content">
             <p>
-              Stockroom reads and saves products directly through your Inventory
+              StockRoom reads and saves products directly through your Inventory
               Optimization Engine. No sample inventory is used.
             </p>
             <div className="connection-detail">

@@ -9,7 +9,7 @@ export default function ProjectDetails({ onDocumentation }) {
   return (
     <section className="project-details" aria-labelledby="project-heading">
       <div className="project-intro">
-        <span className="eyebrow">DSA FINALS PROJECT · GROUP 12</span>
+        <span className="eyebrow">DSA FINALS PROJECT</span>
         <h2 id="project-heading">Dynamic Inventory Optimization Engine</h2>
         <button
           className="text-button"
@@ -21,18 +21,24 @@ export default function ProjectDetails({ onDocumentation }) {
           <ArrowUpRight size={14} />
         </button>
       </div>
-      <div className="contributors" aria-label="Project contributors">
-        {contributors.map((person) => (
-          <div className="contributor" key={person.roll}>
-            <span className="contributor-avatar" aria-hidden="true">
-              {person.initials}
-            </span>
-            <div>
-              <h3>{person.name}</h3>
-              <p>{person.roll}</p>
+      <div className="project-team" aria-label="Group 12 contributors">
+        <div className="team-heading">
+          <span className="group-badge">GROUP 12</span>
+          <span className="team-label">CONTRIBUTORS</span>
+        </div>
+        <div className="contributors">
+          {contributors.map((person) => (
+            <div className="contributor" key={person.roll}>
+              <span className="contributor-avatar" aria-hidden="true">
+                {person.initials}
+              </span>
+              <div>
+                <h3>{person.name}</h3>
+                <p>{person.roll}</p>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   )

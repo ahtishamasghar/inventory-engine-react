@@ -375,8 +375,34 @@ test('project credits, source links, documentation and mobile table guidance', a
     'Built for better inventory decisions.',
     'Your operations, organized',
     'Less guesswork.',
+    'Results update as you type. Name search matches any part of a name.',
+    'A quick pulse on your inventory.',
   ])
     await expect(page.getByText(text, { exact: false })).toHaveCount(0)
+  await expect(
+    page.getByRole('button', { name: 'Dashboard', exact: true }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('button', { name: 'Connection', exact: true }),
+  ).toHaveCount(0)
+  const team = header.getByLabel('Group 12 contributors')
+  await expect(team.getByText('GROUP 12', { exact: true })).toBeVisible()
+  const groupBox = await team
+    .getByText('GROUP 12', { exact: true })
+    .boundingBox()
+  const nameBox = await team
+    .getByText('Ahtisham Asghar', { exact: true })
+    .boundingBox()
+  expect(groupBox.y + groupBox.height).toBeLessThanOrEqual(nameBox.y)
+  const resourceBox = await page
+    .getByRole('navigation', { name: 'Project resources' })
+    .boundingBox()
+  if (testInfo.project.name === 'mobile') {
+    const mainBox = await page.getByRole('main').boundingBox()
+    expect(resourceBox.y).toBeGreaterThanOrEqual(mainBox.y + mainBox.height)
+  } else {
+    expect(resourceBox.y + resourceBox.height).toBeGreaterThan(950)
+  }
   await expect(
     page.locator('.sidebar-brand').getByRole('button', {
       name: 'Connection details: API connected',

@@ -12,7 +12,7 @@ class ErrorBoundary extends React.Component {
     if (this.state.failed)
       return (
         <main className="fatal">
-          <h1>Something interrupted Stockroom.</h1>
+          <h1>Something interrupted StockRoom.</h1>
           <p>Reload to reconnect and try again.</p>
           <button onClick={() => window.location.reload()}>
             Reload application

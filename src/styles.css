@@ -110,9 +110,6 @@ button:disabled .spin {
   border-radius: 11px;
   color: #dce9ae;
 }
-.brand-period {
-  color: #d5e6a0;
-}
 .brand small {
   display: block;
   font-size: 8px;
@@ -1415,8 +1412,9 @@ tbody tr:hover {
   display: flex;
   flex-direction: column;
   gap: 5px;
-  margin-top: 32px;
+  margin-top: auto;
   padding-top: 24px;
+  flex-shrink: 0;
   border-top: 1px solid #3b5b4f;
 }
 .project-resources .nav-label {
@@ -1458,12 +1456,6 @@ tbody tr:hover {
   outline: 3px solid #a07730;
   outline-offset: 3px;
 }
-.search-hint {
-  margin: -8px 24px 16px;
-  font-size: 10px;
-  line-height: 1.7;
-  color: #5e6f53;
-}
 .table-scroll-hint {
   display: flex;
   gap: 7px;
@@ -1503,12 +1495,35 @@ tbody tr:hover {
   letter-spacing: -0.5px;
   margin: 9px 0;
 }
-.contributors {
-  display: flex;
-  gap: 20px;
+.project-team {
   flex-shrink: 0;
   padding-left: 26px;
   border-left: 1px solid var(--line);
+}
+.team-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+.group-badge {
+  padding: 5px 9px;
+  border: 1px solid #d2debf;
+  border-radius: 5px;
+  background: #eaf0df;
+  color: #3e5833;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.team-label {
+  font-size: 8px;
+  letter-spacing: 1.6px;
+  color: #5e6f53;
+}
+.contributors {
+  display: flex;
+  gap: 20px;
 }
 .contributor {
   display: flex;
@@ -1624,10 +1639,6 @@ tbody tr:hover {
   .search-form .search-button {
     grid-column: 1 / -1;
   }
-  .search-hint {
-    margin-left: 16px;
-    margin-right: 16px;
-  }
   .project-details {
     flex-direction: column;
     gap: 18px;
@@ -1636,10 +1647,6 @@ tbody tr:hover {
     flex-direction: row;
     flex-wrap: wrap;
     gap: 17px 24px;
-    padding-left: 0;
-    border-left: 0;
-    padding-top: 18px;
-    border-top: 1px solid var(--line);
     width: 100%;
   }
   .contributor h3 {
@@ -1751,5 +1758,45 @@ tbody tr:hover {
   .inventory-heading .add-product {
     padding: 9px 12px;
     font-size: 10px;
+  }
+}
+
+.mobile-project-resources {
+  display: none;
+}
+.sidebar-brand,
+.sidebar > nav[aria-label='Main navigation'] {
+  flex-shrink: 0;
+}
+@media (max-width: 600px) {
+  .sidebar-resources {
+    display: none;
+  }
+  .mobile-project-resources {
+    display: block;
+    background: #173e35;
+    padding: 20px 17px;
+  }
+  .mobile-project-resources .project-resources {
+    flex-wrap: wrap;
+    border-top: 0;
+    padding-top: 0;
+    gap: 8px 22px;
+  }
+  .mobile-project-resources .nav-label {
+    display: block;
+    flex-basis: 100%;
+    margin-bottom: 3px;
+    padding: 0;
+  }
+  .project-team {
+    width: 100%;
+    padding-left: 0;
+    border-left: 0;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+  }
+  .team-heading {
+    margin-bottom: 18px;
   }
 }

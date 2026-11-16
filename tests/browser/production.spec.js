@@ -15,7 +15,26 @@ test('production without a backend explains setup and remains usable at narrow w
   await expect(
     page.getByText('API not configured', { exact: true }),
   ).toBeVisible()
-  await expect(page.getByRole('alert')).toContainText('VITE_API_BASE_URL')
+  const alert = page.getByRole('alert')
+  await expect(alert).toContainText('Connect the API to load your inventory.')
+  await expect(alert).not.toContainText('VITE_API_BASE_URL')
+  await expect(alert).not.toContainText('Couldn’t load')
+  await expect(
+    page.getByRole('button', { name: 'Connection', exact: true }),
+  ).toHaveCount(0)
+  await expect(
+    page.getByRole('heading', { name: 'Dashboard', exact: true }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('link', { name: 'StockRoom home' }),
+  ).toContainText('StockRoom')
+  const headerBox = await page.getByRole('banner').boundingBox()
+  const alertBox = await alert.boundingBox()
+  const dashboardBox = await page
+    .getByRole('heading', { name: 'Dashboard', exact: true })
+    .boundingBox()
+  expect(alertBox.y).toBeGreaterThanOrEqual(headerBox.y + headerBox.height)
+  expect(alertBox.y + alertBox.height).toBeLessThanOrEqual(dashboardBox.y)
   await expect(page.getByTestId('total-products')).toHaveText('—')
   await expect(page.getByTestId('total-stock')).toHaveText('—')
   await expect(page.getByTestId('low-stock')).toHaveText('—')
