@@ -1770,6 +1770,18 @@ tbody tr:hover {
   margin: 0;
   line-height: 1.4;
 }
+.inventory-title {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  min-width: 0;
+}
+.showing-summary {
+  font-size: 11px;
+  line-height: 1.4;
+  color: #5e6f53;
+  font-variant-numeric: tabular-nums;
+}
 .table-footer > span:first-child {
   min-width: 0;
   overflow-wrap: anywhere;

@@ -91,6 +91,7 @@ test('dashboard, DSA operations, search and full-list totals', async ({
   await page.goto('./')
   await expect(page.getByTestId('total-products')).toHaveText('3')
   await expect(page.getByTestId('total-stock')).toHaveText('36')
+  await expect(page.getByTestId('showing-count')).toHaveText('3 items')
   await expect(page.getByTestId('low-stock')).toHaveText('2')
   await page.getByRole('button', { name: 'Sort by ID', exact: true }).click()
   await expect(page.locator('tbody tr').first()).toContainText('Ceramic cup')
@@ -99,6 +100,7 @@ test('dashboard, DSA operations, search and full-list totals', async ({
   await page.getByRole('button', { name: 'Lowest Stock', exact: true }).click()
   await expect(page.locator('tbody tr')).toHaveCount(1)
   await expect(page.locator('tbody')).toContainText('Ceramic cup')
+  await expect(page.getByTestId('showing-count')).toHaveText('1 item')
   await page.getByLabel('Product ID to search').fill('11')
   await page.getByRole('button', { name: 'Search by ID' }).click()
   await expect(page.locator('tbody')).toContainText('Field notebook')
@@ -108,6 +110,7 @@ test('dashboard, DSA operations, search and full-list totals', async ({
   await expect(
     page.getByRole('heading', { name: 'No matching products' }),
   ).toBeVisible()
+  await expect(page.getByTestId('showing-count')).toHaveText('0 items')
   await page
     .getByRole('button', { name: 'Dashboard', exact: true })
     .first()
@@ -228,8 +231,10 @@ test('empty inventory and pending API request have distinct honest states', asyn
   await page.goto('./')
   await expect(page.getByText('Getting your inventory ready')).toBeVisible()
   await expect(page.getByTestId('total-products')).toHaveText('—')
+  await expect(page.getByTestId('showing-count')).toHaveText('Updating…')
   release()
   await expect(page.getByTestId('total-products')).toHaveText('0')
+  await expect(page.getByTestId('showing-count')).toHaveText('0 items')
   await expect(
     page.getByRole('heading', { name: 'A fresh start for your inventory' }),
   ).toBeVisible()
@@ -348,7 +353,7 @@ test('project credits, source links, documentation and mobile table guidance', a
   })
   await expect(currentHeading).toBeVisible()
   await expect(page.locator('.count-chip')).toHaveCount(0)
-  const headingBox = await currentHeading.boundingBox()
+  const headingBox = await page.locator('.inventory-title').boundingBox()
   const addBox = await page
     .locator('.inventory-heading')
     .getByRole('button', { name: 'Add Product', exact: true })
@@ -501,6 +506,7 @@ test('zero stock, precise prices and sort announcements survive stock-watch edit
   await expect(page.getByTestId('total-products')).toHaveText('3')
   await page.getByRole('button', { name: 'Stock watch', exact: true }).click()
   await expect(page.locator('tbody tr')).toHaveCount(2)
+  await expect(page.getByTestId('showing-count')).toHaveText('2 items')
   await page.getByRole('button', { name: 'Edit Product: Ceramic cup' }).click()
   expect(await page.evaluate(() => document.body.style.overflow)).toBe('hidden')
   await page.getByLabel('Quantity', { exact: true }).fill('0')

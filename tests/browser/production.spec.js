@@ -38,6 +38,7 @@ test('production without a backend explains setup and remains usable at narrow w
   await expect(page.getByTestId('total-products')).toHaveText('—')
   await expect(page.getByTestId('total-stock')).toHaveText('—')
   await expect(page.getByTestId('low-stock')).toHaveText('—')
+  await expect(page.getByTestId('showing-count')).toHaveText('— items')
   for (const width of [320, 390, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: 900 })
     expect(

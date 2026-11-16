@@ -291,8 +291,15 @@ export default function App() {
             aria-busy={loading}
           >
             <div className="inventory-heading">
-              <div className="section-title">
+              <div className="section-title inventory-title">
                 <h2 id="inventory-heading">Currently Showing</h2>
+                <p className="showing-summary" data-testid="showing-count">
+                  {loading
+                    ? 'Updating…'
+                    : all === null
+                      ? '— items'
+                      : `${number(rows.length)} ${rows.length === 1 ? 'item' : 'items'}`}
+                </p>
               </div>
               <button
                 className="button primary add-product"
