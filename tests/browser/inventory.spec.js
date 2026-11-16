@@ -409,21 +409,37 @@ test('project credits, source links, documentation and mobile table guidance', a
       exact: true,
     }),
   ).toBeVisible()
-  await expect(
-    page.getByRole('link', {
-      name: 'Backend source code (opens in a new tab)',
-    }),
-  ).toHaveAttribute(
-    'href',
-    'https://github.com/ahtishamasghar/inventory-optimization-engine',
-  )
+  const resources = page.getByRole('navigation', { name: 'Project resources' })
+  await expect(resources.getByRole('link')).toHaveCount(3)
+  await expect(resources.getByRole('button')).toHaveCount(0)
+  for (const [label, href] of [
+    ['Frontend', 'https://github.com/ahtishamasghar/inventory-engine-react'],
+    [
+      'C++ backend',
+      'https://github.com/ahtishamasghar/inventory-optimization-engine',
+    ],
+    [
+      'Setup README',
+      'https://github.com/ahtishamasghar/inventory-engine-react#readme',
+    ],
+  ]) {
+    const link = resources.getByRole('link', {
+      name: `${label} (opens in a new tab)`,
+      exact: true,
+    })
+    await expect(link).toHaveAttribute('href', href)
+    await expect(link).toHaveAttribute('target', '_blank')
+    await expect(link).toHaveAttribute('rel', 'noopener noreferrer')
+  }
   if (testInfo.project.name === 'mobile')
     await expect(
       page.getByText(
         'Scroll horizontally to see all columns and product actions.',
       ),
     ).toBeVisible()
-  await page.getByRole('button', { name: 'Documentation', exact: true }).click()
+  await page
+    .getByRole('button', { name: 'Explore the project', exact: true })
+    .click()
   const dialog = page.getByRole('dialog', { name: 'Workspace documentation' })
   await expect(
     dialog.getByRole('heading', { name: 'Inside the engine' }),
@@ -448,7 +464,7 @@ test('project credits, source links, documentation and mobile table guidance', a
   await page.keyboard.press('Escape')
   await expect(dialog).toHaveCount(0)
   await expect(
-    page.getByRole('button', { name: 'Documentation', exact: true }),
+    page.getByRole('button', { name: 'Explore the project', exact: true }),
   ).toBeFocused()
 })
 

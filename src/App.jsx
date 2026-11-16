@@ -247,10 +247,7 @@ export default function App() {
             {lowCount != null && <span className="nav-count">{lowCount}</span>}
           </button>
         </nav>
-        <ProjectResources
-          className="sidebar-resources"
-          onDocumentation={() => setDocumentation(true)}
-        />
+        <ProjectResources className="sidebar-resources" />
       </aside>
       <div className="main-shell">
         <header className="project-header">
@@ -508,7 +505,7 @@ export default function App() {
         </main>
       </div>
       <footer className="mobile-project-resources">
-        <ProjectResources onDocumentation={() => setDocumentation(true)} />
+        <ProjectResources />
       </footer>
       {notice && (
         <div className="toast" role="status">

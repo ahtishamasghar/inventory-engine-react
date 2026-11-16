@@ -1,31 +1,47 @@
 import { ArrowUpRight, BookOpen, CodeXml } from 'lucide-react'
 
-export default function ProjectResources({ onDocumentation, className = '' }) {
+const resources = [
+  [
+    'Frontend',
+    'https://github.com/ahtishamasghar/inventory-engine-react',
+    CodeXml,
+  ],
+  [
+    'C++ backend',
+    'https://github.com/ahtishamasghar/inventory-optimization-engine',
+    CodeXml,
+  ],
+  [
+    'Setup README',
+    'https://github.com/ahtishamasghar/inventory-engine-react#readme',
+    BookOpen,
+  ],
+]
+
+export default function ProjectResources({ className = '' }) {
   return (
     <nav
       className={`project-resources ${className}`}
       aria-label="Project resources"
     >
       <span className="nav-label">PROJECT RESOURCES</span>
-      <a
-        href="https://github.com/ahtishamasghar/inventory-optimization-engine"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Backend source code (opens in a new tab)"
-      >
-        <CodeXml size={18} />
-        <span>Source code</span>
-        <ArrowUpRight size={15} className="resource-arrow" />
-      </a>
-      <button
-        onClick={onDocumentation}
-        aria-label="Documentation"
-        aria-haspopup="dialog"
-      >
-        <BookOpen size={18} />
-        <span>Documentation</span>
-        <ArrowUpRight size={15} className="resource-arrow" />
-      </button>
+      {resources.map(([label, href, Icon]) => (
+        <a
+          key={label}
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`${label} (opens in a new tab)`}
+        >
+          <Icon size={18} aria-hidden="true" />
+          <span>{label}</span>
+          <ArrowUpRight
+            size={15}
+            className="resource-arrow"
+            aria-hidden="true"
+          />
+        </a>
+      ))}
     </nav>
   )
 }
