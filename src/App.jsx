@@ -210,10 +210,7 @@ export default function App() {
             <span className="brand-symbol">
               <Box size={25} strokeWidth={1.7} />
             </span>
-            <span>
-              StockRoom
-              <small>INVENTORY ENGINE</small>
-            </span>
+            <span>StockRoom</span>
           </a>
           <button
             className={`connection-pill ${error || !base ? 'offline' : loading ? 'connecting' : 'online'}`}
