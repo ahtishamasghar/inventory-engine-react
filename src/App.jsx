@@ -295,10 +295,7 @@ export default function App() {
           >
             <div className="inventory-heading">
               <div className="section-title">
-                <h2 id="inventory-heading">Your inventory</h2>
-                <span className="count-chip">
-                  {all === null ? '—' : number(all.length)} products
-                </span>
+                <h2 id="inventory-heading">Currently Showing</h2>
               </div>
               <button
                 className="button primary add-product"
@@ -384,27 +381,6 @@ export default function App() {
                 {searchError}
               </p>
             )}
-            <div className="view-bar">
-              <span role="status" aria-live="polite" aria-atomic="true">
-                <span className="view-dot" />
-                {loading
-                  ? all === null
-                    ? 'Loading… · '
-                    : 'Updating… · Previous view: '
-                  : error && all !== null
-                    ? 'Last successful view: '
-                    : ''}
-                {viewLabels[view]}
-                {view === 'search' ? ` · #${activeSearch}` : ''}
-                {view === 'name' ? ` · “${activeSearch}”` : ''}
-                {all !== null && !loading
-                  ? ` · ${number(rows.length)} ${rows.length === 1 ? 'result' : 'results'}`
-                  : ''}
-              </span>
-              <button className="text-button" onClick={showAll}>
-                Show All Products{view !== 'all' && <X size={13} />}
-              </button>
-            </div>
             <ProductTable
               products={rows}
               loading={loading}
@@ -420,10 +396,26 @@ export default function App() {
               view={view}
             />
             <div className="table-footer">
-              <span>
-                {all === null
-                  ? 'Waiting for inventory data'
-                  : `Showing ${number(rows.length)} of ${number(all.length)} products`}
+              <span role="status" aria-live="polite" aria-atomic="true">
+                {loading ? (
+                  'Updating inventory…'
+                ) : all === null ? (
+                  'Waiting for inventory data'
+                ) : (
+                  <>
+                    {error ? 'Last successful view: ' : ''}
+                    {view === 'all' ? (
+                      `Showing ${number(rows.length)} of ${number(all.length)} products`
+                    ) : (
+                      <>
+                        {viewLabels[view]}
+                        {view === 'search' ? ` · #${activeSearch}` : ''}
+                        {view === 'name' ? ` · “${activeSearch}”` : ''}
+                        {` · ${number(rows.length)} ${rows.length === 1 ? 'result' : 'results'}`}
+                      </>
+                    )}
+                  </>
+                )}
               </span>
               <span>
                 {error && all !== null

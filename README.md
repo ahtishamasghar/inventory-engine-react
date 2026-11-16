@@ -41,20 +41,20 @@ The base URL **includes `/api`** and has no trailing endpoint such as `/products
 
 Validated against `ahtishamasghar/inventory-optimization-engine`, commit `0e00949203b7df43f0b7fa14490ac8cff245cafd`, specifically `backend/main.cpp`, `inventory_engine.hpp`, and `models/product.hpp`. The current reference checkout does not contain the requested `frontend_vanila` directory.
 
-| Action            | Method and path                               | Response / implementation                                            |
-| ----------------- | --------------------------------------------- | -------------------------------------------------------------------- |
-| Show All Products | `GET /api/products`                           | `{ "products": [...] }`, hash table inventory                        |
-| Search by Name    | `GET /api/products/search?name={encodedName}` | Product list; backend case-insensitive substring search              |
-| Search by ID      | `GET /api/products/{id}`                      | Product object; hash table lookup; 404 if absent                     |
-| Sort by ID        | `GET /api/products/sorted-by-id`              | Product list; BST in-order traversal                                 |
-| Sort by Price     | `GET /api/products/sorted-by-price`           | Product list; merge sort                                             |
-| Lowest Stock      | `GET /api/products/lowest-stock`              | Product object; min heap; 404 when empty                             |
-| Add Product       | `POST /api/products`                          | All six fields; 201 plain text on success                            |
-| Edit Product      | `PUT /api/products/{id}`                      | Product fields; 200 plain text on success; ID is immutable in the UI |
-| Delete Product    | `DELETE /api/products/{id}`                   | 200 plain text on success                                            |
-| Backend health    | `GET /api/health`                             | `{ "status": "ok", "service": "Inventory Optimization Engine" }`     |
+| Action         | Method and path                               | Response / implementation                                            |
+| -------------- | --------------------------------------------- | -------------------------------------------------------------------- |
+| List inventory | `GET /api/products`                           | `{ "products": [...] }`, hash table inventory                        |
+| Search by Name | `GET /api/products/search?name={encodedName}` | Product list; backend case-insensitive substring search              |
+| Search by ID   | `GET /api/products/{id}`                      | Product object; hash table lookup; 404 if absent                     |
+| Sort by ID     | `GET /api/products/sorted-by-id`              | Product list; BST in-order traversal                                 |
+| Sort by Price  | `GET /api/products/sorted-by-price`           | Product list; merge sort                                             |
+| Lowest Stock   | `GET /api/products/lowest-stock`              | Product object; min heap; 404 when empty                             |
+| Add Product    | `POST /api/products`                          | All six fields; 201 plain text on success                            |
+| Edit Product   | `PUT /api/products/{id}`                      | Product fields; 200 plain text on success; ID is immutable in the UI |
+| Delete Product | `DELETE /api/products/{id}`                   | 200 plain text on success                                            |
+| Backend health | `GET /api/health`                             | `{ "status": "ok", "service": "Inventory Optimization Engine" }`     |
 
-Name search calls the backend’s case-insensitive substring search. Both ID and name search update after a 350 ms pause in typing; submit explicitly to search immediately. Superseded requests are cancelled. Clearing the input or choosing Show All Products restores the complete list. A product uses:
+Name search calls the backend’s case-insensitive substring search. Both ID and name search update after a 350 ms pause in typing; submit explicitly to search immediately. Superseded requests are cancelled. Clearing the input or choosing Dashboard restores the complete list. A product uses:
 
 ```json
 {
@@ -71,7 +71,7 @@ ID, quantity, and minimum stock must be integers between 0 and 2,147,483,647. Pr
 
 Low stock means **`quantity <= minStock`**, matching the previous website. Equality and zero quantity with zero minimum both need attention. Stock health counts products strictly above their minimum. Dashboard totals are calculated from the complete `/products` response, independently of the active view. Read operations can span separate API requests; concurrent external writes may change inventory between those responses. Failed refreshes retain and explicitly label the last successful snapshot.
 
-Zero quantity is labeled **Out of stock** and remains included in low-stock totals and Stock watch. Saving or deleting refreshes the current search, sort, or stock-watch view. A renamed or replenished product may leave that view; Show All Products restores the full list. Choosing a different view clears the search input. Retry repeats the latest requested view, even when its first request failed; retained rows and sort announcements continue to describe the last successful view until the request succeeds.
+Zero quantity is labeled **Out of stock** and remains included in low-stock totals and Stock watch. Saving or deleting refreshes the current search, sort, or stock-watch view. A renamed or replenished product may leave that view; Dashboard restores the full list. Choosing a different view clears the search input. Retry repeats the latest requested view, even when its first request failed; retained rows and sort announcements continue to describe the last successful view until the request succeeds.
 
 ## Production API configuration
 

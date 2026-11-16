@@ -52,8 +52,8 @@ export default function Documentation({ onClose }) {
             <li>
               <strong>Find what you need.</strong> Choose By ID or By name.
               Results update after a brief pause in typing, or use the search
-              button to search immediately. Clear the input or select Show All
-              Products to reset the view.
+              button to search immediately. Clear the input or select Dashboard
+              to reset the view.
             </li>
             <li>
               <strong>Keep records current.</strong> Use the pencil to edit a

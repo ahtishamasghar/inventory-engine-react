@@ -127,9 +127,7 @@ try {
     lowest.quantity,
     Math.min(...all.products.map((p) => p.quantity)),
   )
-  await page
-    .getByRole('button', { name: 'Show All Products', exact: true })
-    .click()
+  await page.getByRole('button', { name: 'Dashboard', exact: true }).click()
   await page.getByRole('button', { name: `Delete Product: ${name}` }).click()
   await page
     .getByRole('dialog')

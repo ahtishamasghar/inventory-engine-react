@@ -87,7 +87,7 @@ export default function ProductTable({
               Add Product
             </>
           ) : (
-            'Show All Products'
+            'Back to Dashboard'
           )}
         </button>
       </div>

@@ -26,7 +26,6 @@ export default function ProjectDetails({ onDocumentation }) {
       <div className="project-team" aria-label="Group 12 contributors">
         <div className="team-heading">
           <span className="group-badge">GROUP 12</span>
-          <span className="team-label">CONTRIBUTORS</span>
         </div>
         <div className="contributors">
           {contributors.map((person) => (

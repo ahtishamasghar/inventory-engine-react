@@ -109,7 +109,7 @@ test('dashboard, DSA operations, search and full-list totals', async ({
     page.getByRole('heading', { name: 'No matching products' }),
   ).toBeVisible()
   await page
-    .getByRole('button', { name: 'Show All Products', exact: true })
+    .getByRole('button', { name: 'Dashboard', exact: true })
     .first()
     .click()
   await expect(page.locator('tbody tr')).toHaveCount(3)
@@ -204,9 +204,7 @@ test('network and failed writes never display invented success', async ({
   await expect(page.getByRole('dialog')).toBeVisible()
   await page.getByRole('button', { name: 'Cancel', exact: true }).click()
   await page.route('**/api/products', (route) => route.abort())
-  await page
-    .getByRole('button', { name: 'Show All Products', exact: true })
-    .click()
+  await page.getByRole('button', { name: 'Dashboard', exact: true }).click()
   await expect(page.getByRole('alert')).toContainText(
     'last successful snapshot',
   )
@@ -285,9 +283,7 @@ test('live name and ID search reset cleanly and preserve full inventory totals',
   await page.getByLabel('Product ID to search').fill('1.5')
   await expect(page.getByRole('alert')).toContainText('Enter a product ID')
   expect(calls).not.toContain('GET /api/products/1.5')
-  await page
-    .getByRole('button', { name: 'Show All Products', exact: true })
-    .click()
+  await page.getByRole('button', { name: 'Dashboard', exact: true }).click()
   await expect(page.locator('tbody tr')).toHaveCount(3)
   await expect(page.getByLabel('Product ID to search')).toHaveValue('')
 })
@@ -318,15 +314,13 @@ test('a superseded name search cannot overwrite a newer search or reset', async 
     page.getByRole('status').filter({ hasText: 'Name search results' }),
   ).toContainText('cup')
   await page.getByLabel('Product name to search').fill('notebook')
-  await page
-    .getByRole('button', { name: 'Show All Products', exact: true })
-    .click()
+  await page.getByRole('button', { name: 'Dashboard', exact: true }).click()
   await expect(page.locator('tbody tr')).toHaveCount(3)
   // Beyond the debounce interval, the reset must still be the active view.
   await page.waitForTimeout(450)
   await expect(
-    page.getByRole('status').filter({ hasText: 'All products' }),
-  ).toContainText('3 results')
+    page.getByRole('status').filter({ hasText: 'Showing 3 of 3 products' }),
+  ).toContainText('Showing 3 of 3 products')
 })
 
 test('project credits, source links, documentation and mobile table guidance', async ({
@@ -343,6 +337,37 @@ test('project credits, source links, documentation and mobile table guidance', a
   ])
     await expect(page.getByText(text, { exact: true })).toBeVisible()
   const header = page.getByRole('banner')
+  await expect(page.getByText('CONTRIBUTORS', { exact: true })).toHaveCount(0)
+  await expect(
+    page.getByRole('button', { name: 'Show All Products', exact: true }),
+  ).toHaveCount(0)
+  await expect(page.locator('.view-bar')).toHaveCount(0)
+  const currentHeading = page.getByRole('heading', {
+    name: 'Currently Showing',
+    exact: true,
+  })
+  await expect(currentHeading).toBeVisible()
+  await expect(page.locator('.count-chip')).toHaveCount(0)
+  const headingBox = await currentHeading.boundingBox()
+  const addBox = await page
+    .locator('.inventory-heading')
+    .getByRole('button', { name: 'Add Product', exact: true })
+    .boundingBox()
+  expect(
+    Math.abs(
+      headingBox.y + headingBox.height / 2 - addBox.y - addBox.height / 2,
+    ),
+  ).toBeLessThanOrEqual(1)
+  const wordmarkBox = await page
+    .locator('.brand > span:last-child')
+    .boundingBox()
+  const connectionBox = await page
+    .locator('.sidebar-brand .connection-pill')
+    .boundingBox()
+  expect(Math.abs(wordmarkBox.x - connectionBox.x)).toBeLessThanOrEqual(1)
+  expect(connectionBox.y).toBeGreaterThanOrEqual(
+    wordmarkBox.y + wordmarkBox.height,
+  )
   await expect(
     header.getByRole('heading', {
       name: 'Dynamic Inventory Optimization Engine',
@@ -563,7 +588,7 @@ test('retry repeats a failed sort or name query while labeling the previous snap
   )
   await expect(
     page.getByRole('status').filter({ hasText: 'Last successful view' }),
-  ).toContainText('All products')
+  ).toContainText('Showing 3 of 3 products')
   failSort = false
   const retriedSort = page.waitForResponse('**/api/products/sorted-by-price')
   await page

@@ -409,13 +409,6 @@ h2 {
   letter-spacing: -0.4px;
   font-weight: 550;
 }
-.count-chip {
-  font-size: 9px;
-  padding: 4px 7px;
-  border-radius: 4px;
-  background: #f0f3eb;
-  color: #5e6f53;
-}
 .text-button {
   display: inline-flex;
   align-items: center;
@@ -495,31 +488,6 @@ h2 {
   background: #f0f4e8;
   border-color: #b3c49d;
   color: #395730;
-}
-.view-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #fbfcf8;
-  border-top: 1px solid #eff1e9;
-  border-bottom: 1px solid var(--line);
-  padding: 7px 24px;
-  font-size: 10px;
-  color: #5e6f53;
-}
-.view-bar > span {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-.view-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #718a55;
-}
-.view-bar button {
-  font-size: 10px;
 }
 .table-scroll {
   position: relative;
@@ -1299,9 +1267,6 @@ tbody tr:hover {
   .inventory-heading h2 {
     font-size: 14px;
   }
-  .count-chip {
-    font-size: 8px;
-  }
   .inventory-toolbar {
     padding: 0 16px 16px;
     gap: 11px;
@@ -1328,9 +1293,6 @@ tbody tr:hover {
   }
   .tool svg {
     width: 14px;
-  }
-  .view-bar {
-    padding: 6px 16px;
   }
   .table-footer {
     padding: 14px 16px;
@@ -1467,15 +1429,6 @@ tbody tr:hover {
   font-size: 10px;
   line-height: 1.6;
 }
-.view-bar > span {
-  flex-wrap: wrap;
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-.view-bar > button {
-  flex-shrink: 0;
-  margin-left: 12px;
-}
 .documentation-dialog {
   max-width: 650px;
 }
@@ -1561,34 +1514,8 @@ tbody tr:hover {
 .sidebar {
   overflow-y: auto;
 }
-.sidebar-brand {
-  margin-bottom: 32px;
-}
-.sidebar-brand .connection-pill {
-  justify-content: center;
-  width: calc(100% - 24px);
-  margin: 0 12px;
-  line-height: 1.5;
-  min-height: 34px;
-}
-.sidebar-brand .connection-pill:hover {
-  box-shadow: 0 0 0 2px #a7b98b;
-}
 
 @media (min-width: 601px) and (max-width: 950px) {
-  .sidebar-brand {
-    margin-bottom: 22px;
-  }
-  .sidebar-brand .brand {
-    margin-bottom: 12px;
-  }
-  .sidebar-brand .connection-pill {
-    width: 42px;
-    margin: 0 auto;
-  }
-  .sidebar-brand .connection-pill span {
-    display: none;
-  }
   .project-resources a,
   .project-resources button {
     justify-content: center;
@@ -1605,19 +1532,6 @@ tbody tr:hover {
     flex-wrap: wrap;
     gap: 15px 8px;
     padding: 16px 17px 10px;
-  }
-  .sidebar-brand {
-    margin-bottom: 0;
-  }
-  .sidebar-brand .brand {
-    margin-bottom: 10px;
-  }
-  .sidebar-brand .connection-pill {
-    width: auto;
-    margin: 0;
-    min-height: 28px;
-    padding: 5px 9px;
-    font-size: 9px;
   }
   .project-resources {
     flex-direction: row;
@@ -1636,7 +1550,7 @@ tbody tr:hover {
     display: none;
   }
   .inventory-heading {
-    align-items: flex-start;
+    align-items: center;
     flex-wrap: wrap;
     gap: 12px;
   }
@@ -1755,11 +1669,6 @@ tbody tr:hover {
   font-weight: 650;
   letter-spacing: 1px;
 }
-.team-label {
-  color: #5e6f53;
-  font-size: 8px;
-  letter-spacing: 1.4px;
-}
 .contributors {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1839,5 +1748,73 @@ tbody tr:hover {
   }
   .team-heading {
     margin-bottom: 17px;
+  }
+}
+
+/* Align connection status with the wordmark rather than the icon. */
+.sidebar-brand {
+  display: grid;
+  grid-template-columns: 39px minmax(0, 1fr);
+  gap: 10px;
+  margin: 0 12px 32px;
+}
+.sidebar-brand .brand {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  margin: 0;
+}
+.sidebar-brand .connection-pill {
+  grid-column: 2;
+  justify-self: start;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 30px;
+  margin: 0;
+  padding: 6px 8px;
+  font-size: 9px;
+  gap: 6px;
+  line-height: 1.4;
+}
+.sidebar-brand .connection-pill:hover {
+  box-shadow: 0 0 0 2px #a7b98b;
+}
+.inventory-heading h2 {
+  margin: 0;
+  line-height: 1.4;
+}
+.table-footer > span:first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+@media (min-width: 601px) and (max-width: 950px) {
+  .sidebar-brand {
+    grid-template-columns: 1fr;
+    margin: 0 0 22px;
+    justify-items: center;
+  }
+  .sidebar-brand .brand {
+    grid-template-columns: 1fr;
+  }
+  .sidebar-brand .connection-pill {
+    grid-column: 1;
+    justify-self: center;
+    justify-content: center;
+    width: 42px;
+  }
+  .sidebar-brand .connection-pill span {
+    display: none;
+  }
+}
+@media (max-width: 600px) {
+  .sidebar-brand {
+    grid-template-columns: 33px minmax(0, 1fr);
+    gap: 8px 10px;
+    margin: 0;
+  }
+  .sidebar-brand .connection-pill {
+    min-height: 28px;
+    padding: 5px 8px;
+    font-size: 8px;
   }
 }
