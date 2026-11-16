@@ -10,9 +10,11 @@ export default function ProjectDetails({ onDocumentation }) {
     <section className="project-details" aria-labelledby="project-heading">
       <div className="project-intro">
         <span className="eyebrow">DSA FINALS PROJECT</span>
-        <h2 id="project-heading">Dynamic Inventory Optimization Engine</h2>
+        <h2 id="project-heading">
+          Dynamic Inventory <span>Optimization Engine</span>
+        </h2>
         <button
-          className="text-button"
+          className="text-button project-explore"
           onClick={onDocumentation}
           aria-haspopup="dialog"
         >

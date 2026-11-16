@@ -1476,82 +1476,6 @@ tbody tr:hover {
   flex-shrink: 0;
   margin-left: 12px;
 }
-.project-details {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 26px;
-  max-width: 1476px;
-  margin: 0 auto;
-}
-.project-intro {
-  max-width: 510px;
-  min-width: 0;
-}
-.project-intro h2 {
-  font-size: clamp(19px, 1.7vw, 25px);
-  font-weight: 550;
-  line-height: 1.4;
-  letter-spacing: -0.5px;
-  margin: 9px 0;
-}
-.project-team {
-  flex-shrink: 0;
-  padding-left: 26px;
-  border-left: 1px solid var(--line);
-}
-.team-heading {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 15px;
-}
-.group-badge {
-  padding: 5px 9px;
-  border: 1px solid #d2debf;
-  border-radius: 5px;
-  background: #eaf0df;
-  color: #3e5833;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 1px;
-}
-.team-label {
-  font-size: 8px;
-  letter-spacing: 1.6px;
-  color: #5e6f53;
-}
-.contributors {
-  display: flex;
-  gap: 20px;
-}
-.contributor {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.contributor-avatar {
-  width: 34px;
-  height: 34px;
-  display: grid;
-  place-items: center;
-  border: 1px solid #dce4d1;
-  background: #edf1e5;
-  border-radius: 50%;
-  color: #536b44;
-  font-size: 10px;
-}
-.contributor h3 {
-  font-size: 11px;
-  font-weight: 550;
-  line-height: 1.6;
-}
-.contributor p {
-  color: #5e6f53;
-  font-size: 9px;
-  margin-top: 4px;
-  letter-spacing: 0.4px;
-}
 .documentation-dialog {
   max-width: 650px;
 }
@@ -1615,15 +1539,7 @@ tbody tr:hover {
 .resource-links a:hover {
   background: #edf2e4;
 }
-@media (max-width: 1200px) {
-  .project-details {
-    align-items: flex-start;
-  }
-  .contributors {
-    gap: 17px;
-    flex-direction: column;
-  }
-}
+
 @media (max-width: 600px) {
   .project-resources a,
   .project-resources button {
@@ -1639,30 +1555,9 @@ tbody tr:hover {
   .search-form .search-button {
     grid-column: 1 / -1;
   }
-  .project-details {
-    flex-direction: column;
-    gap: 18px;
-  }
-  .contributors {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 17px 24px;
-    width: 100%;
-  }
-  .contributor h3 {
-    font-size: 12px;
-  }
-  .contributor p {
-    font-size: 10px;
-  }
 }
 
 /* Project identity leads the workspace; connection and resources stay by the brand. */
-.project-header {
-  background: #fafbf8;
-  border-bottom: 1px solid var(--line);
-  padding: 28px 42px;
-}
 .sidebar {
   overflow-y: auto;
 }
@@ -1679,11 +1574,7 @@ tbody tr:hover {
 .sidebar-brand .connection-pill:hover {
   box-shadow: 0 0 0 2px #a7b98b;
 }
-@media (max-width: 1200px) {
-  .project-header {
-    padding: 25px 28px;
-  }
-}
+
 @media (min-width: 601px) and (max-width: 950px) {
   .sidebar-brand {
     margin-bottom: 22px;
@@ -1744,12 +1635,6 @@ tbody tr:hover {
   .project-resources .resource-arrow {
     display: none;
   }
-  .project-header {
-    padding: 24px 17px;
-  }
-  .project-intro h2 {
-    font-size: 23px;
-  }
   .inventory-heading {
     align-items: flex-start;
     flex-wrap: wrap;
@@ -1789,14 +1674,170 @@ tbody tr:hover {
     margin-bottom: 3px;
     padding: 0;
   }
+}
+
+/* Project identity and contributor credits. */
+.project-header {
+  background: #fafbf8;
+  border-bottom: 1px solid var(--line);
+  padding: 32px 42px;
+}
+.project-details {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 410px);
+  align-items: center;
+  gap: 36px;
+  max-width: 1476px;
+  margin: 0 auto;
+}
+.project-intro {
+  min-width: 0;
+}
+.project-intro .eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 9px;
+  letter-spacing: 1.8px;
+}
+.project-intro .eyebrow::before {
+  content: '';
+  width: 19px;
+  height: 2px;
+  background: #a7b487;
+}
+.project-intro h2 {
+  margin: 12px 0 16px;
+  font-size: clamp(25px, 2vw, 31px);
+  line-height: 1.25;
+  font-weight: 550;
+  letter-spacing: -0.9px;
+  color: #263d37;
+}
+.project-intro h2 span {
+  display: block;
+  color: #526a3c;
+}
+.project-explore {
+  min-height: 34px;
+  padding: 6px 10px;
+  border: 1px solid #dce4d1;
+  border-radius: 6px;
+  background: #ffffff;
+  font-size: 10px;
+  gap: 7px;
+}
+.project-explore:hover {
+  background: #edf2e4;
+  border-color: #becdab;
+}
+.project-team {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid #dfe6d6;
+  border-radius: 11px;
+  background: #f3f6ee;
+}
+.team-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 19px;
+}
+.group-badge {
+  padding: 6px 10px;
+  border: 1px solid #234c40;
+  border-radius: 5px;
+  background: #234c40;
+  color: #f6f7ea;
+  font-size: 9px;
+  font-weight: 650;
+  letter-spacing: 1px;
+}
+.team-label {
+  color: #5e6f53;
+  font-size: 8px;
+  letter-spacing: 1.4px;
+}
+.contributors {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+.contributor {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+.contributor-avatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border: 1px solid #d4dfc7;
+  border-radius: 50%;
+  background: #e6eddc;
+  color: #49603c;
+  font-size: 10px;
+  font-weight: 550;
+}
+.contributor h3 {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.contributor p {
+  margin-top: 3px;
+  font-size: 9px;
+  line-height: 1.6;
+  color: #5e6f53;
+  letter-spacing: 0.25px;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 1200px) {
+  .project-header {
+    padding: 28px;
+  }
+  .project-details {
+    gap: 28px;
+    grid-template-columns: minmax(0, 1fr) minmax(340px, 390px);
+  }
   .project-team {
+    padding: 18px;
+  }
+}
+@media (max-width: 1050px) {
+  .project-details {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+  .project-team {
+    max-width: 510px;
     width: 100%;
-    padding-left: 0;
-    border-left: 0;
-    padding-top: 20px;
-    border-top: 1px solid var(--line);
+  }
+}
+@media (max-width: 600px) {
+  .project-header {
+    padding: 25px 17px;
+  }
+  .project-intro h2 {
+    font-size: 27px;
+    letter-spacing: -0.7px;
+  }
+}
+@media (max-width: 420px) {
+  .contributors {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .contributor + .contributor {
+    border-top: 1px solid #dfe6d6;
+    padding-top: 14px;
   }
   .team-heading {
-    margin-bottom: 18px;
+    margin-bottom: 17px;
   }
 }
